@@ -1,6 +1,5 @@
 package com.riftbound.loot;
 
-import com.riftbound.item.BladeCombatStats;
 import com.riftbound.registry.ModItems;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
@@ -207,7 +206,6 @@ public final class LootItemFactory {
     ) {
         ItemRarity resolvedRarity = resolveRarity(prefix, suffix);
         LootDataHelper.write(stack, resolvedRarity, itemLevel, prefix, suffix, instanceId);
-        BladeCombatStats.refreshAttributes(stack);
         stack.set(DataComponents.CUSTOM_NAME, buildName(prefix, suffix));
     }
 

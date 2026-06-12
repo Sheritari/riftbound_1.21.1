@@ -4,8 +4,6 @@ import com.riftbound.RiftboundMod;
 import com.riftbound.loot.AffixDefinition;
 import com.riftbound.loot.LootDataHelper;
 import com.riftbound.loot.RolledAffix;
-import com.riftbound.registry.ModItems;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EquipmentSlotGroup;
@@ -31,6 +29,33 @@ public final class BladeCombatStats {
     private static final double PLAYER_BASE_ATTACK_SPEED = 4.0D;
 
     private BladeCombatStats() {
+    }
+
+    public static ItemAttributeModifiers defaultBladeAttributes() {
+        ItemAttributeModifiers.Builder builder = ItemAttributeModifiers.builder();
+        builder.add(
+                Attributes.ATTACK_SPEED,
+                attackSpeedModifier(ATTACK_SPEED),
+                EquipmentSlotGroup.MAINHAND
+        );
+        builder.add(
+                Attributes.ENTITY_INTERACTION_RANGE,
+                reachModifier(),
+                EquipmentSlotGroup.MAINHAND
+        );
+        return builder.build();
+    }
+
+    public static AttributeModifier attackSpeedModifier(ItemStack stack) {
+        return attackSpeedModifier(getAttackSpeed(stack));
+    }
+
+    public static AttributeModifier attackSpeedModifier(double attackSpeed) {
+        return modifier("attack_speed", attackSpeed - PLAYER_BASE_ATTACK_SPEED);
+    }
+
+    public static AttributeModifier reachModifier() {
+        return modifier("reach", REACH_BONUS_BLOCKS);
     }
 
     public static float rollHitDamage(RandomSource random) {
@@ -103,71 +128,6 @@ public final class BladeCombatStats {
     private static Optional<RolledAffix> getPrefix(ItemStack stack, AffixDefinition definition) {
         return LootDataHelper.getPrefix(stack)
                 .filter(affix -> affix.id().equals(definition.id()));
-    }
-
-    public static void ensureAttributes(ItemStack stack) {
-        if (!stack.is(ModItems.SHARD_BLADE.get())) {
-            return;
-        }
-        if (!stack.has(DataComponents.ATTRIBUTE_MODIFIERS) || needsAttributeRefresh(stack)) {
-            refreshAttributes(stack);
-        }
-    }
-
-    private static boolean needsAttributeRefresh(ItemStack stack) {
-        return hasSplitAttributeModifiers(stack) || hasStaleReachModifier(stack) || hasStaleAttackSpeed(stack);
-    }
-
-    private static boolean hasStaleAttackSpeed(ItemStack stack) {
-        ItemAttributeModifiers modifiers = stack.get(DataComponents.ATTRIBUTE_MODIFIERS);
-        if (modifiers == null) {
-            return false;
-        }
-        double expected = getAttackSpeed(stack) - PLAYER_BASE_ATTACK_SPEED;
-        return modifiers.modifiers().stream()
-                .filter(entry -> entry.attribute().is(Attributes.ATTACK_SPEED))
-                .anyMatch(entry -> Math.abs(entry.modifier().amount() - expected) > 0.001D);
-    }
-
-    private static boolean hasStaleReachModifier(ItemStack stack) {
-        ItemAttributeModifiers modifiers = stack.get(DataComponents.ATTRIBUTE_MODIFIERS);
-        if (modifiers == null) {
-            return false;
-        }
-        return modifiers.modifiers().stream()
-                .filter(entry -> entry.attribute().is(Attributes.ENTITY_INTERACTION_RANGE))
-                .anyMatch(entry -> Math.abs(entry.modifier().amount() - REACH_BONUS_BLOCKS) > 0.001D);
-    }
-
-    private static boolean hasSplitAttributeModifiers(ItemStack stack) {
-        ItemAttributeModifiers modifiers = stack.get(DataComponents.ATTRIBUTE_MODIFIERS);
-        if (modifiers == null) {
-            return false;
-        }
-        return modifiers.modifiers().stream()
-                .filter(entry -> entry.attribute().is(Attributes.ATTACK_SPEED))
-                .count() > 1;
-    }
-
-    public static void refreshAttributes(ItemStack stack) {
-        if (!stack.is(ModItems.SHARD_BLADE.get())) {
-            return;
-        }
-
-        double attackSpeedModifier = getAttackSpeed(stack) - PLAYER_BASE_ATTACK_SPEED;
-
-        ItemAttributeModifiers.Builder builder = ItemAttributeModifiers.builder();
-        builder.add(
-                Attributes.ATTACK_SPEED,
-                modifier("attack_speed", attackSpeedModifier),
-                EquipmentSlotGroup.MAINHAND
-        );
-        builder.add(
-                Attributes.ENTITY_INTERACTION_RANGE,
-                modifier("reach", REACH_BONUS_BLOCKS),
-                EquipmentSlotGroup.MAINHAND
-        );
-        stack.set(DataComponents.ATTRIBUTE_MODIFIERS, builder.build());
     }
 
     private static AttributeModifier modifier(String id, double amount) {

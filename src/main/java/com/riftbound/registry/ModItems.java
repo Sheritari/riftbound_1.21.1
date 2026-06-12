@@ -1,10 +1,12 @@
 package com.riftbound.registry;
 
 import com.riftbound.RiftboundMod;
+import com.riftbound.item.BladeCombatStats;
 import com.riftbound.item.RiftboundBlockItem;
 import com.riftbound.item.ShardBladeItem;
 import com.riftbound.item.ShardDustItem;
 import com.riftbound.item.ShardStoneItem;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.Item;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredItem;
@@ -30,7 +32,9 @@ public final class ModItems {
 
     public static final DeferredItem<ShardBladeItem> SHARD_BLADE = ITEMS.register(
             "shard_blade",
-            () -> new ShardBladeItem(new Item.Properties().stacksTo(1))
+            () -> new ShardBladeItem(new Item.Properties()
+                    .stacksTo(1)
+                    .component(DataComponents.ATTRIBUTE_MODIFIERS, BladeCombatStats.defaultBladeAttributes()))
     );
 
     private ModItems() {

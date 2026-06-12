@@ -1,4 +1,4 @@
-# Riftbound 0.1.5a
+# Riftbound 0.1.5b
 
 
 
@@ -6,7 +6,7 @@ A fantasy mod for Minecraft **1.21.1** (NeoForge).
 
 
 
-## Features (0.1.5a)
+## Features (0.1.5b)
 
 
 
