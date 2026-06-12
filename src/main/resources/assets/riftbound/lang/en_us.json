@@ -18,7 +18,7 @@
   "affix.riftbound.brutal": "Brutal",
   "affix.riftbound.brutal.desc": "+%s Attack Damage",
   "message.riftbound.transmuted": "Item transmuted",
-  "gui.riftbound.transmutation": "Shard Transmutation",
+  "gui.riftbound.transmutation": "Shard Crafting",
   "gui.riftbound.tab.inventory": "Inventory",
-  "gui.riftbound.tab.transmutation": "Shards"
+  "gui.riftbound.tab.craft": "Craft"
 }

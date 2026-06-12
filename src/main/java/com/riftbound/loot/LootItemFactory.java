@@ -9,6 +9,7 @@ import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
+
 public final class LootItemFactory {
     private LootItemFactory() {
     }
@@ -35,21 +36,50 @@ public final class LootItemFactory {
 
     public static ItemStack upgradeToMagic(ItemStack stack, RandomSource random, HolderLookup.Provider registries) {
         if (!stack.is(ModItems.SHARD_BLADE.get())) {
-            return stack;
+            return ItemStack.EMPTY;
         }
         if (LootDataHelper.getRarity(stack) != ItemRarity.NORMAL) {
-            return stack;
+            return ItemStack.EMPTY;
         }
 
-        ItemStack result = stack.copy();
-        int itemLevel = LootDataHelper.getItemLevel(result);
+        int itemLevel = LootDataHelper.getItemLevel(stack);
+        long instanceId = LootDataHelper.getInstanceId(stack).orElseGet(() -> random.nextLong());
 
         AffixDefinition affix = AffixPool.roll(random);
         double value = affix.rollValue(random);
+
+        ItemStack result = new ItemStack(ModItems.SHARD_BLADE.get());
         affix.apply(result, itemLevel, value, registries);
 
         List<RolledAffix> affixes = List.of(new RolledAffix(affix.id(), value));
-        LootDataHelper.write(result, ItemRarity.MAGIC, itemLevel, affixes);
+        LootDataHelper.write(result, ItemRarity.MAGIC, itemLevel, affixes, instanceId);
+        result.set(DataComponents.CUSTOM_NAME, buildName(ItemRarity.MAGIC, affixes));
+        return result;
+    }
+
+    public static ItemStack rerollMagicAffix(ItemStack stack, RandomSource random, HolderLookup.Provider registries) {
+        if (!stack.is(ModItems.SHARD_BLADE.get())) {
+            return ItemStack.EMPTY;
+        }
+        if (LootDataHelper.getRarity(stack) != ItemRarity.MAGIC) {
+            return ItemStack.EMPTY;
+        }
+
+        int itemLevel = LootDataHelper.getItemLevel(stack);
+        long instanceId = LootDataHelper.getInstanceId(stack).orElseGet(() -> random.nextLong());
+        String currentAffixId = LootDataHelper.getAffixes(stack).stream()
+                .findFirst()
+                .map(RolledAffix::id)
+                .orElse(null);
+
+        AffixDefinition affix = AffixPool.rollExcluding(random, currentAffixId);
+        double value = affix.rollValue(random);
+
+        ItemStack result = new ItemStack(ModItems.SHARD_BLADE.get());
+        affix.apply(result, itemLevel, value, registries);
+
+        List<RolledAffix> affixes = List.of(new RolledAffix(affix.id(), value));
+        LootDataHelper.write(result, ItemRarity.MAGIC, itemLevel, affixes, instanceId);
         result.set(DataComponents.CUSTOM_NAME, buildName(ItemRarity.MAGIC, affixes));
         return result;
     }

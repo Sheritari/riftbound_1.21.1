@@ -9,7 +9,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 public record TransmutationMenuProvider() implements MenuProvider {
     @Override
     public Component getDisplayName() {
-        return Component.translatable("gui.riftbound.transmutation");
+        return Component.empty();
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.riftbound;
 
 import com.mojang.logging.LogUtils;
+import com.riftbound.event.ItemInstanceEvents;
 import com.riftbound.event.LootEvents;
 import com.riftbound.registry.ModBlocks;
 import com.riftbound.registry.ModCreativeTabs;
@@ -25,6 +26,7 @@ public class RiftboundMod {
         modEventBus.addListener(ModNetworking::registerPayloadHandlers);
 
         NeoForge.EVENT_BUS.register(LootEvents.class);
+        NeoForge.EVENT_BUS.register(ItemInstanceEvents.class);
 
         LOGGER.info("Riftbound loaded");
     }

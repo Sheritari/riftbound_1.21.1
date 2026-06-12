@@ -5,17 +5,26 @@ import com.riftbound.loot.ItemRarity;
 import com.riftbound.loot.LootDataHelper;
 import com.riftbound.loot.RolledAffix;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.Tiers;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
 
 import java.util.List;
 
 public class ShardBladeItem extends SwordItem {
     public ShardBladeItem(Properties properties) {
         super(Tiers.IRON, properties);
+    }
+
+    @Override
+    public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
+        if (!level.isClientSide()) {
+            LootDataHelper.ensureInstanceId(stack);
+        }
     }
 
     @Override
@@ -36,6 +45,8 @@ public class ShardBladeItem extends SwordItem {
                 tooltipComponents.add(Component.translatable(definition.translationKey() + ".desc", formatValue(definition, affix.value())));
             }
         }
+
+        LootDataHelper.appendInstanceIdTooltip(stack, tooltipComponents);
     }
 
     private static AffixDefinition resolveAffix(String id) {

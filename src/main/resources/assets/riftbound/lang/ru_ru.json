@@ -18,7 +18,7 @@
   "affix.riftbound.brutal": "Жестокий",
   "affix.riftbound.brutal.desc": "+%s к урону",
   "message.riftbound.transmuted": "Предмет преобразован",
-  "gui.riftbound.transmutation": "Трансмутация осколков",
+  "gui.riftbound.transmutation": "Крафт осколков",
   "gui.riftbound.tab.inventory": "Инвентарь",
-  "gui.riftbound.tab.transmutation": "Осколки"
+  "gui.riftbound.tab.craft": "Крафт"
 }

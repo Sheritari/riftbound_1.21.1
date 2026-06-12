@@ -1,5 +1,7 @@
 package com.riftbound.client;
 
+import com.riftbound.RiftboundMod;
+import com.riftbound.menu.TransmutationLayout;
 import com.riftbound.menu.TransmutationMenu;
 import com.riftbound.network.MenuTabPayload;
 import net.minecraft.client.gui.GuiGraphics;
@@ -12,32 +14,47 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 public class TransmutationScreen extends AbstractContainerScreen<TransmutationMenu> {
     private static final ResourceLocation TEXTURE =
-            ResourceLocation.fromNamespaceAndPath("minecraft", "textures/gui/container/hopper.png");
+            ResourceLocation.fromNamespaceAndPath(RiftboundMod.MOD_ID, "textures/gui/transmutation.png");
 
     public TransmutationScreen(TransmutationMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
-        this.imageWidth = 176;
-        this.imageHeight = 166;
+        this.imageWidth = TransmutationLayout.PANEL_WIDTH;
+        this.imageHeight = TransmutationLayout.PANEL_HEIGHT;
+        this.titleLabelX = -1000;
+        this.titleLabelY = -1000;
+        this.inventoryLabelX = 8;
+        this.inventoryLabelY = TransmutationLayout.INVENTORY_LABEL_Y;
     }
 
     @Override
     protected void init() {
         super.init();
-        addRenderableWidget(Button.builder(Component.translatable("gui.riftbound.tab.inventory"), button -> {
-            PacketDistributor.sendToServer(new MenuTabPayload(MenuTabPayload.Tab.INVENTORY));
-        }).bounds(this.leftPos + 8, this.topPos + 4, 72, 18).build());
+        int tabLeft = InventoryTabLayout.tabLeft(this);
+        int tabTop = this.topPos - 24;
 
-        Button transmutationTab = Button.builder(Component.translatable("gui.riftbound.tab.transmutation"), button -> {
-        }).bounds(this.leftPos + 84, this.topPos + 4, 84, 18).build();
-        transmutationTab.active = false;
-        addRenderableWidget(transmutationTab);
+        addRenderableWidget(Button.builder(Component.translatable("gui.riftbound.tab.inventory"), button ->
+                PacketDistributor.sendToServer(new MenuTabPayload(MenuTabPayload.Tab.INVENTORY))
+        ).bounds(tabLeft, tabTop, 72, 20).build());
+
+        Button craftTab = Button.builder(Component.translatable("gui.riftbound.tab.craft"), button -> {
+        }).bounds(tabLeft + 76, tabTop, 84, 20).build();
+        craftTab.active = false;
+        addRenderableWidget(craftTab);
     }
 
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
-        int x = this.leftPos;
-        int y = this.topPos;
-        graphics.blit(TEXTURE, x, y, 0, 0, this.imageWidth, this.imageHeight);
+        graphics.blit(
+                TEXTURE,
+                this.leftPos,
+                this.topPos,
+                0,
+                0,
+                this.imageWidth,
+                this.imageHeight,
+                TransmutationLayout.TEXTURE_WIDTH,
+                TransmutationLayout.TEXTURE_HEIGHT
+        );
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.riftbound.menu;
 
+import com.riftbound.loot.LootDataHelper;
 import com.riftbound.registry.ModMenus;
 import com.riftbound.transmutation.TransmutationLogic;
 import net.minecraft.world.Container;
@@ -7,12 +8,19 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 public class TransmutationMenu extends AbstractContainerMenu {
+    private static final int SEED_HIGH_INDEX = 0;
+    private static final int SEED_LOW_INDEX = 1;
+
     private final Container inputContainer;
     private final Player player;
+    private final ContainerData craftSeed = new SimpleContainerData(2);
 
     public TransmutationMenu(int containerId, Inventory playerInventory) {
         this(containerId, playerInventory, new SimpleContainer(2));
@@ -25,50 +33,143 @@ public class TransmutationMenu extends AbstractContainerMenu {
 
         checkContainerSize(inputContainer, 2);
 
-        addSlot(new Slot(inputContainer, 0, 27, 35));
-        addSlot(new Slot(inputContainer, 1, 45, 35));
-        addSlot(new TransmutationResultSlot(this, 79, 35));
+        addSlot(new Slot(inputContainer, 0, TransmutationLayout.INPUT_1_X, TransmutationLayout.INPUT_1_Y));
+        addSlot(new Slot(inputContainer, 1, TransmutationLayout.INPUT_2_X, TransmutationLayout.INPUT_2_Y));
+        addSlot(new TransmutationResultSlot(this, TransmutationLayout.RESULT_X, TransmutationLayout.RESULT_Y));
 
         for (int row = 0; row < 3; row++) {
             for (int column = 0; column < 9; column++) {
-                addSlot(new Slot(playerInventory, column + row * 9 + 9, 8 + column * 18, 84 + row * 18));
+                addSlot(new Slot(
+                        playerInventory,
+                        column + row * 9 + 9,
+                        TransmutationLayout.PLAYER_INV_X + column * 18,
+                        TransmutationLayout.PLAYER_INV_Y + row * 18
+                ));
             }
         }
 
         for (int column = 0; column < 9; column++) {
-            addSlot(new Slot(playerInventory, column, 8 + column * 18, 142));
+            addSlot(new Slot(
+                    playerInventory,
+                    column,
+                    TransmutationLayout.PLAYER_INV_X + column * 18,
+                    TransmutationLayout.HOTBAR_Y
+            ));
         }
+
+        addDataSlots(craftSeed);
     }
 
     @Override
     public void slotsChanged(Container container) {
+        if (!player.level().isClientSide()) {
+            ensureUniqueBladeIds();
+            updateSyncedSeed();
+        }
         super.slotsChanged(container);
         broadcastChanges();
     }
 
+    private void ensureUniqueBladeIds() {
+        for (int slot = 0; slot < 2; slot++) {
+            ItemStack stack = inputContainer.getItem(slot);
+            if (LootDataHelper.ensureInstanceId(stack)) {
+                inputContainer.setItem(slot, stack);
+            }
+        }
+    }
+
+    private void updateSyncedSeed() {
+        ItemStack first = inputContainer.getItem(0);
+        ItemStack second = inputContainer.getItem(1);
+
+        if (!TransmutationLogic.canCombine(first, second)) {
+            craftSeed.set(SEED_HIGH_INDEX, 0);
+            craftSeed.set(SEED_LOW_INDEX, 0);
+            return;
+        }
+
+        long seed = TransmutationLogic.combinationSeed(first, second);
+        craftSeed.set(SEED_HIGH_INDEX, (int) (seed >> 32));
+        craftSeed.set(SEED_LOW_INDEX, (int) seed);
+    }
+
+    private long syncedSeed() {
+        return ((long) craftSeed.get(SEED_HIGH_INDEX) << 32) | (craftSeed.get(SEED_LOW_INDEX) & 0xFFFFFFFFL);
+    }
+
     public ItemStack getResultPreview() {
-        return TransmutationLogic.getResult(
-                inputContainer.getItem(0),
-                inputContainer.getItem(1),
-                player.registryAccess()
-        );
+        ItemStack first = inputContainer.getItem(0);
+        ItemStack second = inputContainer.getItem(1);
+
+        if (!TransmutationLogic.canCombine(first, second)) {
+            return ItemStack.EMPTY;
+        }
+
+        long seed = syncedSeed();
+        if (seed == 0L) {
+            return ItemStack.EMPTY;
+        }
+
+        return TransmutationLogic.getResultWithSeed(first, second, seed, player.registryAccess());
     }
 
     public void craftResult(Player craftingPlayer) {
-        if (getResultPreview().isEmpty()) {
+        ItemStack result = getResultPreview();
+        if (result.isEmpty()) {
             return;
         }
 
         if (!craftingPlayer.getAbilities().instabuild) {
-            inputContainer.getItem(0).shrink(1);
-            inputContainer.getItem(1).shrink(1);
+            TransmutationLogic.consumeInputs(inputContainer);
         }
 
         inputContainer.setChanged();
+        if (!player.level().isClientSide()) {
+            ensureUniqueBladeIds();
+            updateSyncedSeed();
+        }
+        broadcastChanges();
+    }
+
+    @Override
+    public void clicked(int slotIndex, int dragType, ClickType clickType, Player clickingPlayer) {
+        if (slotIndex == 2 && clickType == ClickType.PICKUP) {
+            ItemStack result = getResultPreview();
+            if (!result.isEmpty()) {
+                ItemStack carried = getCarried();
+                if (carried.isEmpty()) {
+                    craftResult(clickingPlayer);
+                    setCarried(result.copy());
+                    return;
+                }
+                if (ItemStack.isSameItemSameComponents(carried, result) && carried.getCount() < carried.getMaxStackSize()) {
+                    craftResult(clickingPlayer);
+                    carried.grow(1);
+                    setCarried(carried);
+                    return;
+                }
+            }
+        }
+
+        if (slotIndex == 2) {
+            return;
+        }
+
+        super.clicked(slotIndex, dragType, clickType, clickingPlayer);
+        if (!clickingPlayer.level().isClientSide()) {
+            ensureUniqueBladeIds();
+            updateSyncedSeed();
+        }
+        broadcastChanges();
     }
 
     @Override
     public ItemStack quickMoveStack(Player movingPlayer, int slotIndex) {
+        if (slotIndex == 2) {
+            return ItemStack.EMPTY;
+        }
+
         ItemStack resultStack = ItemStack.EMPTY;
         Slot slot = this.slots.get(slotIndex);
 
@@ -76,12 +177,7 @@ public class TransmutationMenu extends AbstractContainerMenu {
             ItemStack stackInSlot = slot.getItem();
             resultStack = stackInSlot.copy();
 
-            if (slotIndex == 2) {
-                if (!this.moveItemStackTo(stackInSlot, 3, 39, true)) {
-                    return ItemStack.EMPTY;
-                }
-                slot.onQuickCraft(stackInSlot, resultStack);
-            } else if (slotIndex < 3) {
+            if (slotIndex < 2) {
                 if (!this.moveItemStackTo(stackInSlot, 3, 39, false)) {
                     return ItemStack.EMPTY;
                 }
@@ -100,6 +196,11 @@ public class TransmutationMenu extends AbstractContainerMenu {
             }
 
             slot.onTake(movingPlayer, stackInSlot);
+        }
+
+        if (!movingPlayer.level().isClientSide()) {
+            ensureUniqueBladeIds();
+            updateSyncedSeed();
         }
 
         return resultStack;
@@ -135,18 +236,6 @@ public class TransmutationMenu extends AbstractContainerMenu {
         }
 
         @Override
-        public ItemStack remove(int amount) {
-            ItemStack result = getItem();
-            if (result.isEmpty()) {
-                return ItemStack.EMPTY;
-            }
-
-            ItemStack taken = result.copy();
-            menu.craftResult(menu.player);
-            return taken;
-        }
-
-        @Override
         public boolean mayPickup(Player player) {
             return !getItem().isEmpty();
         }
@@ -162,6 +251,11 @@ public class TransmutationMenu extends AbstractContainerMenu {
 
         @Override
         public void setChanged() {
+        }
+
+        @Override
+        public ItemStack remove(int amount) {
+            return ItemStack.EMPTY;
         }
     }
 }
