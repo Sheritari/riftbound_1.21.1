@@ -120,9 +120,7 @@ public class TransmutationMenu extends AbstractContainerMenu {
             return;
         }
 
-        if (!craftingPlayer.getAbilities().instabuild) {
-            TransmutationLogic.consumeInputs(inputContainer);
-        }
+        TransmutationLogic.consumeInputs(inputContainer);
 
         inputContainer.setChanged();
         if (!player.level().isClientSide()) {
