@@ -16,6 +16,15 @@ public final class AffixPool {
     private AffixPool() {
     }
 
+    public static AffixDefinition byId(String id) {
+        for (AffixDefinition definition : ACT_ONE) {
+            if (definition.id().equals(id)) {
+                return definition;
+            }
+        }
+        return null;
+    }
+
     public static AffixDefinition roll(RandomSource random) {
         return ACT_ONE.get(random.nextInt(ACT_ONE.size()));
     }
