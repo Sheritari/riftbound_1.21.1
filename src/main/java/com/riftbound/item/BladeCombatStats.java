@@ -21,6 +21,8 @@ public final class BladeCombatStats {
     public static final double MAX_BASE_DAMAGE = 11.0D;
     public static final double ATTACK_SPEED = 1.45D;
     public static final float FULL_ATTACK_STRENGTH_THRESHOLD = 0.9F;
+    public static final float CRIT_CHANCE = 0.05F;
+    public static final float CRIT_DAMAGE_MULTIPLIER = 2.0F;
     private static final double VANILLA_SWORD_REACH_BLOCKS = 3.0D;
     public static final double REACH_BONUS_BLOCKS = 0.1D;
     public static final double REACH_BLOCKS = VANILLA_SWORD_REACH_BLOCKS + REACH_BONUS_BLOCKS;
