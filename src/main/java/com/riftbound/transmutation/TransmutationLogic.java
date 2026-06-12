@@ -45,25 +45,9 @@ public final class TransmutationLogic {
 
         RandomSource random = RandomSource.create(seed);
         return switch (match.catalyst()) {
-            case DUST -> getDustResult(match.blade(), random, registries);
-            case STONE -> LootItemFactory.addRandomSuffixIfMissing(match.blade(), random);
+            case DUST -> LootItemFactory.applyPrefixCatalyst(match.blade(), random, registries);
+            case STONE -> LootItemFactory.applySuffixCatalyst(match.blade(), random, registries);
         };
-    }
-
-    private static ItemStack getDustResult(ItemStack blade, RandomSource random, HolderLookup.Provider registries) {
-        ItemRarity rarity = LootDataHelper.getRarity(blade);
-
-        if (rarity == ItemRarity.NORMAL) {
-            return LootItemFactory.addSuffix(blade, random, registries);
-        }
-        if (rarity == ItemRarity.MAGIC && LootDataHelper.hasPrefix(blade) && !LootDataHelper.hasSuffix(blade)) {
-            return LootItemFactory.addSuffixToRare(blade, random, registries);
-        }
-        if (LootDataHelper.hasSuffix(blade)) {
-            return LootItemFactory.rerollSuffix(blade, random, registries);
-        }
-
-        return ItemStack.EMPTY;
     }
 
     public static void consumeInputs(Container inputContainer) {

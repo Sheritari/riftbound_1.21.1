@@ -46,6 +46,98 @@ public final class LootItemFactory {
         return stack;
     }
 
+    public static ItemStack addPrefix(ItemStack stack, RandomSource random, HolderLookup.Provider registries) {
+        if (!stack.is(ModItems.SHARD_BLADE.get())) {
+            return ItemStack.EMPTY;
+        }
+
+        ItemRarity rarity = LootDataHelper.getRarity(stack);
+        if (rarity != ItemRarity.NORMAL) {
+            return ItemStack.EMPTY;
+        }
+
+        int itemLevel = LootDataHelper.getItemLevel(stack);
+        long instanceId = LootDataHelper.getInstanceId(stack).orElseGet(random::nextLong);
+        Optional<RolledAffix> prefix = Optional.of(AffixPool.rollPrefix(random, itemLevel));
+
+        ItemStack result = new ItemStack(ModItems.SHARD_BLADE.get());
+        finalizeBlade(result, itemLevel, prefix, Optional.empty(), instanceId);
+        return result;
+    }
+
+    public static ItemStack addPrefixToRare(ItemStack stack, RandomSource random, HolderLookup.Provider registries) {
+        if (!stack.is(ModItems.SHARD_BLADE.get())) {
+            return ItemStack.EMPTY;
+        }
+
+        ItemRarity rarity = LootDataHelper.getRarity(stack);
+        if (rarity != ItemRarity.MAGIC || !LootDataHelper.hasSuffix(stack) || LootDataHelper.hasPrefix(stack)) {
+            return ItemStack.EMPTY;
+        }
+
+        int itemLevel = LootDataHelper.getItemLevel(stack);
+        long instanceId = LootDataHelper.getInstanceId(stack).orElseGet(random::nextLong);
+        Optional<RolledAffix> suffix = LootDataHelper.getSuffix(stack);
+        Optional<RolledAffix> prefix = Optional.of(AffixPool.rollPrefix(random, itemLevel));
+
+        ItemStack result = new ItemStack(ModItems.SHARD_BLADE.get());
+        finalizeBlade(result, itemLevel, prefix, suffix, instanceId);
+        return result;
+    }
+
+    public static ItemStack rerollPrefix(ItemStack stack, RandomSource random, HolderLookup.Provider registries) {
+        if (!stack.is(ModItems.SHARD_BLADE.get())) {
+            return ItemStack.EMPTY;
+        }
+
+        ItemRarity rarity = LootDataHelper.getRarity(stack);
+        if (rarity == ItemRarity.NORMAL || !LootDataHelper.hasPrefix(stack)) {
+            return ItemStack.EMPTY;
+        }
+
+        int itemLevel = LootDataHelper.getItemLevel(stack);
+        long instanceId = LootDataHelper.getInstanceId(stack).orElseGet(random::nextLong);
+        Optional<RolledAffix> suffix = LootDataHelper.getSuffix(stack);
+        String currentPrefixId = LootDataHelper.getPrefix(stack).map(RolledAffix::id).orElse(null);
+        Optional<RolledAffix> prefix = Optional.of(AffixPool.rollPrefixExcluding(random, itemLevel, currentPrefixId));
+
+        ItemStack result = new ItemStack(ModItems.SHARD_BLADE.get());
+        finalizeBlade(result, itemLevel, prefix, suffix, instanceId);
+        return result;
+    }
+
+    public static ItemStack applyPrefixCatalyst(ItemStack stack, RandomSource random, HolderLookup.Provider registries) {
+        ItemRarity rarity = LootDataHelper.getRarity(stack);
+
+        if (rarity == ItemRarity.NORMAL) {
+            return addPrefix(stack, random, registries);
+        }
+        if (rarity == ItemRarity.MAGIC && LootDataHelper.hasSuffix(stack) && !LootDataHelper.hasPrefix(stack)) {
+            return addPrefixToRare(stack, random, registries);
+        }
+        if (LootDataHelper.hasPrefix(stack)) {
+            return rerollPrefix(stack, random, registries);
+        }
+
+        return ItemStack.EMPTY;
+    }
+
+    public static ItemStack applySuffixCatalyst(ItemStack stack, RandomSource random, HolderLookup.Provider registries) {
+        ItemRarity rarity = LootDataHelper.getRarity(stack);
+
+        if (rarity == ItemRarity.NORMAL) {
+            return addSuffix(stack, random, registries);
+        }
+        if (rarity == ItemRarity.MAGIC && LootDataHelper.hasPrefix(stack) && !LootDataHelper.hasSuffix(stack)) {
+            return addSuffixToRare(stack, random, registries);
+        }
+        if (LootDataHelper.hasSuffix(stack)) {
+            return rerollSuffix(stack, random, registries);
+        }
+
+        return ItemStack.EMPTY;
+    }
+
     public static ItemStack addSuffix(ItemStack stack, RandomSource random, HolderLookup.Provider registries) {
         if (!stack.is(ModItems.SHARD_BLADE.get())) {
             return ItemStack.EMPTY;
@@ -83,25 +175,6 @@ public final class LootItemFactory {
         ItemStack result = new ItemStack(ModItems.SHARD_BLADE.get());
         finalizeBlade(result, itemLevel, prefix, suffix, instanceId);
         return result;
-    }
-
-    public static ItemStack addRandomSuffixIfMissing(ItemStack stack, RandomSource random) {
-        if (!stack.is(ModItems.SHARD_BLADE.get()) || LootDataHelper.hasSuffix(stack)) {
-            return ItemStack.EMPTY;
-        }
-
-        ItemRarity rarity = LootDataHelper.getRarity(stack);
-        if (rarity == ItemRarity.NORMAL) {
-            return addSuffix(stack, random, null);
-        }
-        if (rarity == ItemRarity.MAGIC && LootDataHelper.hasPrefix(stack)) {
-            return addSuffixToRare(stack, random, null);
-        }
-        if (rarity == ItemRarity.MAGIC) {
-            return addSuffix(stack, random, null);
-        }
-
-        return ItemStack.EMPTY;
     }
 
     public static ItemStack rerollSuffix(ItemStack stack, RandomSource random, HolderLookup.Provider registries) {

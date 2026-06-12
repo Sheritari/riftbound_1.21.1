@@ -52,6 +52,22 @@ public final class AffixPool {
         return definition.roll(random);
     }
 
+    public static RolledAffix rollPrefixExcluding(RandomSource random, int itemLevel, String excludedId) {
+        List<AffixDefinition> eligible = eligible(PREFIXES, itemLevel);
+        if (excludedId == null || eligible.size() <= 1) {
+            return rollPrefix(random, itemLevel);
+        }
+
+        AffixDefinition rolled;
+        int attempts = 0;
+        do {
+            rolled = eligible.get(random.nextInt(eligible.size()));
+            attempts++;
+        } while (rolled.id().equals(excludedId) && attempts < 16);
+
+        return rolled.roll(random);
+    }
+
     public static RolledAffix rollSuffixExcluding(RandomSource random, int itemLevel, String excludedId) {
         List<AffixDefinition> eligible = eligible(SUFFIXES, itemLevel);
         if (excludedId == null || eligible.size() <= 1) {
