@@ -20,7 +20,7 @@ public final class BladeCombatStats {
     public static final double MIN_BASE_DAMAGE = 5.0D;
     public static final double MAX_BASE_DAMAGE = 11.0D;
     public static final double ATTACK_SPEED = 1.45D;
-    public static final double REACH_BLOCKS = 1.1D;
+    public static final double REACH_BLOCKS = 3.1D;
 
     private static final double PLAYER_BASE_ATTACK_SPEED = 4.0D;
     private static final double PLAYER_BASE_REACH = 3.0D;
@@ -33,23 +33,41 @@ public final class BladeCombatStats {
     }
 
     public static float getAffixDamageBonus(ItemStack stack) {
-        float bonus = 0.0F;
+        return (float) sumAffixValues(stack, AffixDefinition.AffixType.DAMAGE);
+    }
+
+    public static double getAffixAttackSpeedBonus(ItemStack stack) {
+        return sumAffixValues(stack, AffixDefinition.AffixType.ATTACK_SPEED);
+    }
+
+    private static double sumAffixValues(ItemStack stack, AffixDefinition.AffixType type) {
+        double total = 0.0D;
         for (RolledAffix affix : LootDataHelper.getAffixes(stack)) {
             AffixDefinition definition = AffixPool.byId(affix.id());
-            if (definition != null && definition.type() == AffixDefinition.AffixType.DAMAGE) {
-                bonus += (float) affix.value();
+            if (definition != null && definition.type() == type) {
+                total += affix.value();
             }
         }
-        return bonus;
+        return total;
     }
 
     public static void ensureAttributes(ItemStack stack, HolderLookup.Provider registries) {
         if (!stack.is(ModItems.SHARD_BLADE.get())) {
             return;
         }
-        if (!stack.has(DataComponents.ATTRIBUTE_MODIFIERS)) {
+        if (!stack.has(DataComponents.ATTRIBUTE_MODIFIERS) || hasSplitAttributeModifiers(stack)) {
             refreshAttributes(stack, registries);
         }
+    }
+
+    private static boolean hasSplitAttributeModifiers(ItemStack stack) {
+        ItemAttributeModifiers modifiers = stack.get(DataComponents.ATTRIBUTE_MODIFIERS);
+        if (modifiers == null) {
+            return false;
+        }
+        return modifiers.modifiers().stream()
+                .filter(entry -> entry.attribute().is(Attributes.ATTACK_SPEED))
+                .count() > 1;
     }
 
     public static void refreshAttributes(ItemStack stack, HolderLookup.Provider registries) {
@@ -57,15 +75,17 @@ public final class BladeCombatStats {
             return;
         }
 
+        double attackSpeedModifier = ATTACK_SPEED - PLAYER_BASE_ATTACK_SPEED + getAffixAttackSpeedBonus(stack);
+
         ItemAttributeModifiers.Builder builder = ItemAttributeModifiers.builder();
         builder.add(
                 Attributes.ATTACK_SPEED,
-                modifier("base_attack_speed", ATTACK_SPEED - PLAYER_BASE_ATTACK_SPEED),
+                modifier("attack_speed", attackSpeedModifier),
                 EquipmentSlotGroup.MAINHAND
         );
         builder.add(
                 Attributes.ENTITY_INTERACTION_RANGE,
-                modifier("base_reach", REACH_BLOCKS - PLAYER_BASE_REACH),
+                modifier("reach", REACH_BLOCKS - PLAYER_BASE_REACH),
                 EquipmentSlotGroup.MAINHAND
         );
         stack.set(DataComponents.ATTRIBUTE_MODIFIERS, builder.build());
@@ -73,7 +93,7 @@ public final class BladeCombatStats {
         int itemLevel = LootDataHelper.getItemLevel(stack);
         for (RolledAffix affix : LootDataHelper.getAffixes(stack)) {
             AffixDefinition definition = AffixPool.byId(affix.id());
-            if (definition != null && definition.type() != AffixDefinition.AffixType.DAMAGE) {
+            if (definition != null && definition.type() == AffixDefinition.AffixType.ENCHANT) {
                 definition.apply(stack, itemLevel, affix.value(), registries);
             }
         }
