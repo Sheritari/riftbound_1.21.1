@@ -1,4 +1,4 @@
-# Riftbound 0.1.3e
+# Riftbound 0.1.4
 
 
 
@@ -6,7 +6,7 @@ A fantasy mod for Minecraft **1.21.1** (NeoForge).
 
 
 
-## Features (0.1.3e)
+## Features (0.1.4)
 
 
 
@@ -14,15 +14,19 @@ A fantasy mod for Minecraft **1.21.1** (NeoForge).
 
 - **Shard Ore** — mineable ore (creative / `/setblock` for now; worldgen planned)
 
-- **Vaelen's Blade** — base weapon with item rarity (normal / magic)
+- **Vaelen's Blade** — POE-style loot sword with implicit, prefixes, and suffixes
 
-- **5 affixes** on magic blades (damage, attack speed, fire aspect, and more)
+- **Rarity** — normal (white), magic (blue, 1 prefix or 1 suffix), rare (yellow, 1 prefix + 1 suffix)
+
+- **Prefixes** — Squire's, Heated, Heavy
+
+- **Suffixes** — of Skill, of Needling, of the Brute, of the Mongoose, of Steadiness, of Success
 
 - **Mob loot** — hostile mobs drop dust; **Vaelen's Blade** (ilvl 1) drops only from vanilla Minecraft mobs
 
 - **Craft tab** in the player inventory (survival and creative): horizontal input slots and a deterministic result preview
 
-- **Transmutation** — shard dust + shard blade → magic blade; dust + magic blade → rerolled affix (different per item copy)
+- **Transmutation** — shard dust adds or rerolls suffixes only; prefix is preserved when upgrading magic → rare
 
 - **Localization** — English and Russian in-game strings
 

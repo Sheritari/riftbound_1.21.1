@@ -2,11 +2,9 @@ package com.riftbound.item;
 
 import com.riftbound.RiftboundMod;
 import com.riftbound.loot.AffixDefinition;
-import com.riftbound.loot.AffixPool;
 import com.riftbound.loot.LootDataHelper;
 import com.riftbound.loot.RolledAffix;
 import com.riftbound.registry.ModItems;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
@@ -16,6 +14,8 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 
+import java.util.Optional;
+
 public final class BladeCombatStats {
     public static final double MIN_BASE_DAMAGE = 5.0D;
     public static final double MAX_BASE_DAMAGE = 11.0D;
@@ -23,6 +23,7 @@ public final class BladeCombatStats {
     public static final float FULL_ATTACK_STRENGTH_THRESHOLD = 0.9F;
     public static final float CRIT_CHANCE = 0.05F;
     public static final float CRIT_DAMAGE_MULTIPLIER = 2.0F;
+    public static final int IMPLICIT_ACCURACY_INCREASED = 40;
     private static final double VANILLA_SWORD_REACH_BLOCKS = 3.0D;
     public static final double REACH_BONUS_BLOCKS = 0.1D;
     public static final double REACH_BLOCKS = VANILLA_SWORD_REACH_BLOCKS + REACH_BONUS_BLOCKS;
@@ -36,36 +37,96 @@ public final class BladeCombatStats {
         return (float) (MIN_BASE_DAMAGE + random.nextDouble() * (MAX_BASE_DAMAGE - MIN_BASE_DAMAGE));
     }
 
-    public static float getAffixDamageBonus(ItemStack stack) {
-        return (float) sumAffixValues(stack, AffixDefinition.AffixType.DAMAGE);
+    public static float rollPhysicalDamage(RandomSource random, ItemStack stack) {
+        float damage = rollHitDamage(random);
+        damage *= 1.0F + getIncreasedPhysicalPercent(stack) / 100.0F;
+        damage += getFlatPhysicalBonus(stack);
+        return damage;
     }
 
-    public static double getAffixAttackSpeedBonus(ItemStack stack) {
-        return sumAffixValues(stack, AffixDefinition.AffixType.ATTACK_SPEED);
-    }
-
-    private static double sumAffixValues(ItemStack stack, AffixDefinition.AffixType type) {
-        double total = 0.0D;
-        for (RolledAffix affix : LootDataHelper.getAffixes(stack)) {
-            AffixDefinition definition = AffixPool.byId(affix.id());
-            if (definition != null && definition.type() == type) {
-                total += affix.value();
-            }
+    public static float rollFireDamage(RandomSource random, ItemStack stack) {
+        Optional<RolledAffix> heated = getPrefix(stack, AffixDefinition.HEATED);
+        if (heated.isEmpty()) {
+            return 0.0F;
         }
-        return total;
+
+        int min = (int) heated.get().value(0);
+        int max = (int) heated.get().value(1);
+        if (max < min) {
+            int swap = min;
+            min = max;
+            max = swap;
+        }
+        if (max == min) {
+            return min;
+        }
+        return min + random.nextInt(max - min + 1);
     }
 
-    public static void ensureAttributes(ItemStack stack, HolderLookup.Provider registries) {
+    public static float getCritChance(ItemStack stack) {
+        return CRIT_CHANCE + getSuffixValue(stack, AffixDefinition.OF_NEEDLING) / 100.0F;
+    }
+
+    public static float getLifeOnKillPercent(ItemStack stack) {
+        return getSuffixValue(stack, AffixDefinition.OF_SUCCESS);
+    }
+
+    public static double getAttackSpeed(ItemStack stack) {
+        double increased = getSuffixValue(stack, AffixDefinition.OF_SKILL)
+                + getSuffixValue(stack, AffixDefinition.OF_MONGOOSE);
+        return ATTACK_SPEED * (1.0D + increased / 100.0D);
+    }
+
+    private static float getIncreasedPhysicalPercent(ItemStack stack) {
+        return getPrefixValue(stack, AffixDefinition.SQUIRES, 0)
+                + getPrefixValue(stack, AffixDefinition.HEAVY, 0);
+    }
+
+    private static float getFlatPhysicalBonus(ItemStack stack) {
+        return getSuffixValue(stack, AffixDefinition.OF_BRUTE);
+    }
+
+    private static float getPrefixValue(ItemStack stack, AffixDefinition definition, int index) {
+        return LootDataHelper.getPrefix(stack)
+                .filter(affix -> affix.id().equals(definition.id()))
+                .map(affix -> (float) affix.value(index))
+                .orElse(0.0F);
+    }
+
+    private static float getSuffixValue(ItemStack stack, AffixDefinition definition) {
+        return LootDataHelper.getSuffix(stack)
+                .filter(affix -> affix.id().equals(definition.id()))
+                .map(affix -> (float) affix.value())
+                .orElse(0.0F);
+    }
+
+    private static Optional<RolledAffix> getPrefix(ItemStack stack, AffixDefinition definition) {
+        return LootDataHelper.getPrefix(stack)
+                .filter(affix -> affix.id().equals(definition.id()));
+    }
+
+    public static void ensureAttributes(ItemStack stack) {
         if (!stack.is(ModItems.SHARD_BLADE.get())) {
             return;
         }
         if (!stack.has(DataComponents.ATTRIBUTE_MODIFIERS) || needsAttributeRefresh(stack)) {
-            refreshAttributes(stack, registries);
+            refreshAttributes(stack);
         }
     }
 
     private static boolean needsAttributeRefresh(ItemStack stack) {
-        return hasSplitAttributeModifiers(stack) || hasStaleReachModifier(stack);
+        return hasSplitAttributeModifiers(stack) || hasStaleReachModifier(stack) || hasStaleAttackSpeed(stack);
+    }
+
+    private static boolean hasStaleAttackSpeed(ItemStack stack) {
+        ItemAttributeModifiers modifiers = stack.get(DataComponents.ATTRIBUTE_MODIFIERS);
+        if (modifiers == null) {
+            return false;
+        }
+        double expected = getAttackSpeed(stack) - PLAYER_BASE_ATTACK_SPEED;
+        return modifiers.modifiers().stream()
+                .filter(entry -> entry.attribute().is(Attributes.ATTACK_SPEED))
+                .anyMatch(entry -> Math.abs(entry.modifier().amount() - expected) > 0.001D);
     }
 
     private static boolean hasStaleReachModifier(ItemStack stack) {
@@ -88,12 +149,12 @@ public final class BladeCombatStats {
                 .count() > 1;
     }
 
-    public static void refreshAttributes(ItemStack stack, HolderLookup.Provider registries) {
+    public static void refreshAttributes(ItemStack stack) {
         if (!stack.is(ModItems.SHARD_BLADE.get())) {
             return;
         }
 
-        double attackSpeedModifier = ATTACK_SPEED - PLAYER_BASE_ATTACK_SPEED + getAffixAttackSpeedBonus(stack);
+        double attackSpeedModifier = getAttackSpeed(stack) - PLAYER_BASE_ATTACK_SPEED;
 
         ItemAttributeModifiers.Builder builder = ItemAttributeModifiers.builder();
         builder.add(
@@ -107,14 +168,6 @@ public final class BladeCombatStats {
                 EquipmentSlotGroup.MAINHAND
         );
         stack.set(DataComponents.ATTRIBUTE_MODIFIERS, builder.build());
-
-        int itemLevel = LootDataHelper.getItemLevel(stack);
-        for (RolledAffix affix : LootDataHelper.getAffixes(stack)) {
-            AffixDefinition definition = AffixPool.byId(affix.id());
-            if (definition != null && definition.type() == AffixDefinition.AffixType.ENCHANT) {
-                definition.apply(stack, itemLevel, affix.value(), registries);
-            }
-        }
     }
 
     private static AttributeModifier modifier(String id, double amount) {
@@ -124,4 +177,5 @@ public final class BladeCombatStats {
                 AttributeModifier.Operation.ADD_VALUE
         );
     }
+
 }

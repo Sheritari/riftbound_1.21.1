@@ -1,10 +1,8 @@
 package com.riftbound.item;
 
-import com.riftbound.loot.AffixDefinition;
-import com.riftbound.loot.AffixPool;
+import com.riftbound.loot.AffixTooltipHelper;
 import com.riftbound.loot.ItemRarity;
 import com.riftbound.loot.LootDataHelper;
-import com.riftbound.loot.RolledAffix;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.Item;
@@ -29,8 +27,8 @@ public class ShardBladeItem extends Item implements ItemBaseLevelProvider {
     @Override
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
         if (!level.isClientSide()) {
-            LootDataHelper.ensureInstanceId(stack);
-            BladeCombatStats.ensureAttributes(stack, level.registryAccess());
+            LootDataHelper.ensureLootDefaults(stack);
+            BladeCombatStats.ensureAttributes(stack);
         }
     }
 
@@ -43,12 +41,16 @@ public class ShardBladeItem extends Item implements ItemBaseLevelProvider {
         ));
         tooltipComponents.add(Component.translatable(
                 "tooltip.riftbound.attack_speed",
-                String.format("%.2f", BladeCombatStats.ATTACK_SPEED)
+                String.format("%.2f", BladeCombatStats.getAttackSpeed(stack))
         ));
         tooltipComponents.add(Component.translatable(
                 "tooltip.riftbound.reach",
                 String.format("%.1f", BladeCombatStats.REACH_BLOCKS)
         ));
+        tooltipComponents.add(Component.translatable("tooltip.riftbound.implicit.accuracy"));
+
+        LootDataHelper.getPrefix(stack).ifPresent(affix -> tooltipComponents.add(AffixTooltipHelper.describe(affix)));
+        LootDataHelper.getSuffix(stack).ifPresent(affix -> tooltipComponents.add(AffixTooltipHelper.describe(affix)));
 
         ItemRarity rarity = LootDataHelper.getRarity(stack);
         tooltipComponents.add(Component.translatable("tooltip.riftbound.rarity." + rarity.getId()).withStyle(rarity.style()));
@@ -58,22 +60,7 @@ public class ShardBladeItem extends Item implements ItemBaseLevelProvider {
             tooltipComponents.add(Component.translatable("tooltip.riftbound.ilvl", itemLevel));
         }
 
-        for (RolledAffix affix : LootDataHelper.getAffixes(stack)) {
-            AffixDefinition definition = AffixPool.byId(affix.id());
-            if (definition != null) {
-                tooltipComponents.add(Component.translatable(definition.translationKey() + ".desc", formatValue(definition, affix.value())));
-            }
-        }
-
         super.appendHoverText(stack, context, tooltipComponents, flag);
         LootDataHelper.appendInstanceIdTooltip(stack, tooltipComponents);
-    }
-
-    private static String formatValue(AffixDefinition definition, double value) {
-        return switch (definition.type()) {
-            case DAMAGE -> String.format("%.1f", value);
-            case ATTACK_SPEED -> String.format("%.2f", value);
-            case ENCHANT -> "";
-        };
     }
 }

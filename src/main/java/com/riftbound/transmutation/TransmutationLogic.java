@@ -39,10 +39,13 @@ public final class TransmutationLogic {
         ItemRarity rarity = LootDataHelper.getRarity(blade);
 
         if (rarity == ItemRarity.NORMAL) {
-            return LootItemFactory.upgradeToMagic(blade, random, registries);
+            return LootItemFactory.addSuffix(blade, random, registries);
         }
-        if (rarity == ItemRarity.MAGIC) {
-            return LootItemFactory.rerollMagicAffix(blade, random, registries);
+        if (rarity == ItemRarity.MAGIC && LootDataHelper.hasPrefix(blade) && !LootDataHelper.hasSuffix(blade)) {
+            return LootItemFactory.addSuffixToRare(blade, random, registries);
+        }
+        if (LootDataHelper.hasSuffix(blade)) {
+            return LootItemFactory.rerollSuffix(blade, random, registries);
         }
 
         return ItemStack.EMPTY;
@@ -117,6 +120,8 @@ public final class TransmutationLogic {
             return false;
         }
         ItemRarity rarity = LootDataHelper.getRarity(stack);
-        return rarity == ItemRarity.NORMAL || rarity == ItemRarity.MAGIC;
+        return rarity == ItemRarity.NORMAL
+                || rarity == ItemRarity.MAGIC
+                || rarity == ItemRarity.RARE;
     }
 }

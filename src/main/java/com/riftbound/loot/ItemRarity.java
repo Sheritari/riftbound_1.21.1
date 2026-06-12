@@ -5,7 +5,8 @@ import net.minecraft.network.chat.Style;
 
 public enum ItemRarity {
     NORMAL("normal", ChatFormatting.WHITE),
-    MAGIC("magic", ChatFormatting.BLUE);
+    MAGIC("magic", ChatFormatting.BLUE),
+    RARE("rare", ChatFormatting.YELLOW);
 
     private final String id;
     private final ChatFormatting color;

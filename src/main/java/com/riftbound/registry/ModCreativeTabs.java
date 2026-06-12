@@ -1,6 +1,7 @@
 package com.riftbound.registry;
 
 import com.riftbound.RiftboundMod;
+import com.riftbound.loot.LootItemFactory;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -18,11 +19,11 @@ public final class ModCreativeTabs {
             () -> CreativeModeTab.builder()
                     .title(Component.translatable("itemGroup.riftbound"))
                     .withTabsBefore(CreativeModeTabs.COMBAT)
-                    .icon(() -> ModItems.SHARD_BLADE.get().getDefaultInstance())
+                    .icon(() -> LootItemFactory.createNormalBlade())
                     .displayItems((parameters, output) -> {
                         output.accept(ModItems.SHARD_DUST.get());
                         output.accept(ModBlocks.SHARD_ORE.get());
-                        output.accept(ModItems.SHARD_BLADE.get());
+                        output.accept(LootItemFactory.createNormalBlade());
                     })
                     .build()
     );

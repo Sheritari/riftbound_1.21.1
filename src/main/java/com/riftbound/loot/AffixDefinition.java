@@ -1,87 +1,72 @@
 package com.riftbound.loot;
 
-import net.minecraft.core.Holder;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.ItemAttributeModifiers;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.world.item.enchantment.ItemEnchantments;
+import net.minecraft.util.RandomSource;
 
-import java.util.Optional;
+import java.util.List;
 
 public record AffixDefinition(
         String id,
         String translationKey,
-        AffixType type,
-        double minValue,
-        double maxValue,
-        Optional<ResourceKey<Enchantment>> enchantment,
-        Optional<Integer> enchantmentLevel
+        AffixSlot slot,
+        int minIlvl,
+        List<AffixRoll> rolls
 ) {
-    public enum AffixType {
-        DAMAGE,
-        ATTACK_SPEED,
-        ENCHANT
-    }
-
-    public static final AffixDefinition SHARP = new AffixDefinition(
-            "sharp", "affix.riftbound.sharp", AffixType.DAMAGE, 1.0, 3.0, Optional.empty(), Optional.empty()
-    );
-    public static final AffixDefinition SWIFT = new AffixDefinition(
-            "swift", "affix.riftbound.swift", AffixType.ATTACK_SPEED, 0.05, 0.15, Optional.empty(), Optional.empty()
-    );
-    public static final AffixDefinition EMBER = new AffixDefinition(
-            "ember", "affix.riftbound.ember", AffixType.ENCHANT, 0, 0,
-            Optional.of(Enchantments.FIRE_ASPECT), Optional.of(1)
-    );
-    public static final AffixDefinition SERRATED = new AffixDefinition(
-            "serrated", "affix.riftbound.serrated", AffixType.DAMAGE, 0.5, 1.5, Optional.empty(), Optional.empty()
-    );
-    public static final AffixDefinition BRUTAL = new AffixDefinition(
-            "brutal", "affix.riftbound.brutal", AffixType.DAMAGE, 2.0, 4.0, Optional.empty(), Optional.empty()
-    );
-
-    public void apply(ItemStack stack, int tier, double rolledValue, HolderLookup.Provider registries) {
-        switch (type) {
-            case DAMAGE -> addModifier(stack, Attributes.ATTACK_DAMAGE, rolledValue, id + "_damage");
-            case ATTACK_SPEED -> addModifier(stack, Attributes.ATTACK_SPEED, rolledValue, id + "_speed");
-            case ENCHANT -> enchantment.ifPresent(enchantKey -> {
-                Holder<Enchantment> enchant = registries.lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(enchantKey);
-                ItemEnchantments current = stack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY);
-                ItemEnchantments.Mutable mutable = new ItemEnchantments.Mutable(current);
-                mutable.set(enchant, enchantmentLevel.orElse(1));
-                stack.set(DataComponents.ENCHANTMENTS, mutable.toImmutable());
-            });
+    public record AffixRoll(int min, int max) {
+        public int roll(RandomSource random) {
+            if (max <= min) {
+                return min;
+            }
+            return min + random.nextInt(max - min + 1);
         }
     }
 
-    private static void addModifier(ItemStack stack, net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> attribute,
-                                    double amount, String modifierId) {
-        ItemAttributeModifiers current = stack.getOrDefault(DataComponents.ATTRIBUTE_MODIFIERS, ItemAttributeModifiers.EMPTY);
-        ItemAttributeModifiers.Builder builder = ItemAttributeModifiers.builder();
-        current.modifiers().forEach(entry ->
-                builder.add(entry.attribute(), entry.modifier(), entry.slot())
-        );
-        builder.add(
-                attribute,
-                new AttributeModifier(
-                        ResourceLocation.fromNamespaceAndPath("riftbound", modifierId),
-                        amount,
-                        AttributeModifier.Operation.ADD_VALUE
-                ),
-                net.minecraft.world.entity.EquipmentSlotGroup.MAINHAND
-        );
-        stack.set(DataComponents.ATTRIBUTE_MODIFIERS, builder.build());
+    public static final AffixDefinition SQUIRES = new AffixDefinition(
+            "squires", "affix.riftbound.squires", AffixSlot.PREFIX, 1,
+            List.of(new AffixRoll(15, 19), new AffixRoll(16, 20))
+    );
+    public static final AffixDefinition HEATED = new AffixDefinition(
+            "heated", "affix.riftbound.heated", AffixSlot.PREFIX, 1,
+            List.of(new AffixRoll(1, 2), new AffixRoll(3, 4))
+    );
+    public static final AffixDefinition HEAVY = new AffixDefinition(
+            "heavy", "affix.riftbound.heavy", AffixSlot.PREFIX, 1,
+            List.of(new AffixRoll(40, 49))
+    );
+
+    public static final AffixDefinition OF_SKILL = new AffixDefinition(
+            "of_skill", "affix.riftbound.of_skill", AffixSlot.SUFFIX, 1,
+            List.of(new AffixRoll(5, 7))
+    );
+    public static final AffixDefinition OF_NEEDLING = new AffixDefinition(
+            "of_needling", "affix.riftbound.of_needling", AffixSlot.SUFFIX, 1,
+            List.of(new AffixRoll(10, 14))
+    );
+    public static final AffixDefinition OF_BRUTE = new AffixDefinition(
+            "of_brute", "affix.riftbound.of_brute", AffixSlot.SUFFIX, 1,
+            List.of(new AffixRoll(8, 12))
+    );
+    public static final AffixDefinition OF_MONGOOSE = new AffixDefinition(
+            "of_mongoose", "affix.riftbound.of_mongoose", AffixSlot.SUFFIX, 1,
+            List.of(new AffixRoll(8, 12))
+    );
+    public static final AffixDefinition OF_STEADINESS = new AffixDefinition(
+            "of_steadiness", "affix.riftbound.of_steadiness", AffixSlot.SUFFIX, 1,
+            List.of(new AffixRoll(80, 130))
+    );
+    public static final AffixDefinition OF_SUCCESS = new AffixDefinition(
+            "of_success", "affix.riftbound.of_success", AffixSlot.SUFFIX, 1,
+            List.of(new AffixRoll(7, 10))
+    );
+
+    public RolledAffix roll(RandomSource random) {
+        int[] rolled = new int[rolls.size()];
+        for (int i = 0; i < rolls.size(); i++) {
+            rolled[i] = rolls.get(i).roll(random);
+        }
+        return RolledAffix.ofInts(id, rolled);
     }
 
-    public double rollValue(net.minecraft.util.RandomSource random) {
-        return minValue + random.nextDouble() * (maxValue - minValue);
+    public boolean canRollOn(int itemLevel) {
+        return itemLevel >= minIlvl;
     }
 }
