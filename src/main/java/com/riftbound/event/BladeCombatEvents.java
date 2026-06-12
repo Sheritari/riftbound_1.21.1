@@ -8,10 +8,25 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.CriticalHitEvent;
 
 public final class BladeCombatEvents {
     private BladeCombatEvents() {
+    }
+
+    @SubscribeEvent
+    public static void onAttackEntity(AttackEntityEvent event) {
+        Player player = event.getEntity();
+        if (player.level().isClientSide()) {
+            return;
+        }
+        if (!player.getMainHandItem().is(ModItems.SHARD_BLADE.get())) {
+            return;
+        }
+        if (!isFullStrengthAttack(player)) {
+            event.setCanceled(true);
+        }
     }
 
     @SubscribeEvent
@@ -37,8 +52,17 @@ public final class BladeCombatEvents {
             return;
         }
 
+        if (!isFullStrengthAttack(player)) {
+            event.setCanceled(true);
+            return;
+        }
+
         float damage = BladeCombatStats.rollHitDamage(player.getRandom())
                 + BladeCombatStats.getAffixDamageBonus(weapon);
         event.setAmount(damage);
+    }
+
+    private static boolean isFullStrengthAttack(Player player) {
+        return player.getAttackStrengthScale(0.0F) >= BladeCombatStats.FULL_ATTACK_STRENGTH_THRESHOLD;
     }
 }

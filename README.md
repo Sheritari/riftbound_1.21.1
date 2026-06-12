@@ -1,4 +1,4 @@
-# Riftbound 0.1.3c
+# Riftbound 0.1.3d
 
 
 
@@ -6,7 +6,7 @@ A fantasy mod for Minecraft **1.21.1** (NeoForge).
 
 
 
-## Features (0.1.3c)
+## Features (0.1.3d)
 
 
 
@@ -70,7 +70,7 @@ gradlew.bat build
 
 
 
-Output: `build/libs/riftbound-0.1.3c.jar` — copy into your NeoForge 1.21.1 `mods` folder.
+Output: `build/libs/riftbound-0.1.3d.jar` — copy into your NeoForge 1.21.1 `mods` folder.
 
 
 
