@@ -1,6 +1,6 @@
 # Riftbound 0.1.1
 
-A fantasy loot mod for Minecraft **1.21.1** (NeoForge) with Path of Exile–inspired itemization.
+A fantasy mod for Minecraft **1.21.1** (NeoForge).
 
 ## Features (0.1.1)
 
@@ -17,7 +17,6 @@ A fantasy loot mod for Minecraft **1.21.1** (NeoForge) with Path of Exile–insp
 
 - **Java 21** (JDK)
 - **NeoForge** for Minecraft 1.21.1
-- **Gradle** (wrapper included) or an IDE with Gradle support (IntelliJ IDEA recommended)
 
 ## Development setup
 
@@ -28,14 +27,6 @@ A fantasy loot mod for Minecraft **1.21.1** (NeoForge) with Path of Exile–insp
    gradlew.bat runClient
    ```
 4. In-game: open the **Riftbound** creative tab to grab items.
-
-## Testing loot and transmutation
-
-1. `/gamemode survival`
-2. Kill a hostile mob (zombie, skeleton, etc.) — chance to drop shard dust or a shard blade
-3. Open inventory (`E`) → **Shards** tab
-4. Place **shard dust** and a **normal shard blade** in the two input slots
-5. Take the magic blade from the result slot
 
 ## Building the mod JAR
 
