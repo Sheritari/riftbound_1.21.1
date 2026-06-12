@@ -44,7 +44,7 @@ A fantasy mod for Minecraft **1.21.1** (NeoForge).
 
 1. Clone the repository and open it as a Gradle project in your IDE.
 
-2. Wait for Gradle sync (first run may take 10–30 minutes while Minecraft dependencies download).
+2. Wait for Gradle sync.
 
 3. Run the client:
 
