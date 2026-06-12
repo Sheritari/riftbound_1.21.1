@@ -3,7 +3,7 @@
   "block.riftbound.shard_ore": "Shard Ore",
   "item.riftbound.shard_ore": "Shard Ore",
   "item.riftbound.shard_dust": "Shard Dust",
-  "item.riftbound.shard_blade": "Shard Blade",
+  "item.riftbound.shard_blade": "Vaelen's Blade",
   "tooltip.riftbound.rarity.normal": "Normal",
   "tooltip.riftbound.rarity.magic": "Magic",
   "tooltip.riftbound.ilvl": "Item Level: %s",

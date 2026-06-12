@@ -1,4 +1,4 @@
-# Riftbound 0.1.2c
+# Riftbound 0.1.2d
 
 
 
@@ -6,7 +6,7 @@ A fantasy mod for Minecraft **1.21.1** (NeoForge).
 
 
 
-## Features (0.1.2c)
+## Features (0.1.2d)
 
 
 
@@ -14,11 +14,11 @@ A fantasy mod for Minecraft **1.21.1** (NeoForge).
 
 - **Shard Ore** — mineable ore (creative / `/setblock` for now; worldgen planned)
 
-- **Shard Blade** — base weapon with item rarity (normal / magic)
+- **Vaelen's Blade** — base weapon with item rarity (normal / magic)
 
 - **5 affixes** on magic blades (damage, attack speed, fire aspect, and more)
 
-- **Mob loot** — hostile mobs drop dust; **Shard Blade** (ilvl 1) drops only from vanilla Minecraft mobs
+- **Mob loot** — hostile mobs drop dust; **Vaelen's Blade** (ilvl 1) drops only from vanilla Minecraft mobs
 
 - **Craft tab** in the player inventory (survival and creative): horizontal input slots and a deterministic result preview
 
@@ -70,7 +70,7 @@ gradlew.bat build
 
 
 
-Output: `build/libs/riftbound-0.1.2c.jar` — copy into your NeoForge 1.21.1 `mods` folder.
+Output: `build/libs/riftbound-0.1.2d.jar` — copy into your NeoForge 1.21.1 `mods` folder.
 
 
 

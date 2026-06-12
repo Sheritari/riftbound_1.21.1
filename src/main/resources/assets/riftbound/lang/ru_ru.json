@@ -3,7 +3,7 @@
   "block.riftbound.shard_ore": "Рудный осколок",
   "item.riftbound.shard_ore": "Рудный осколок",
   "item.riftbound.shard_dust": "Пыль осколка",
-  "item.riftbound.shard_blade": "Клинок осколков",
+  "item.riftbound.shard_blade": "Клинок Вейлена",
   "tooltip.riftbound.rarity.normal": "Обычный",
   "tooltip.riftbound.rarity.magic": "Магический",
   "tooltip.riftbound.ilvl": "Уровень предмета: %s",
