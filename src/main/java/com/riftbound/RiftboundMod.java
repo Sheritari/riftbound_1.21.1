@@ -1,0 +1,31 @@
+package com.riftbound;
+
+import com.mojang.logging.LogUtils;
+import com.riftbound.event.LootEvents;
+import com.riftbound.registry.ModBlocks;
+import com.riftbound.registry.ModCreativeTabs;
+import com.riftbound.registry.ModItems;
+import com.riftbound.network.ModNetworking;
+import com.riftbound.registry.ModMenus;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.common.NeoForge;
+import org.slf4j.Logger;
+
+@Mod(RiftboundMod.MOD_ID)
+public class RiftboundMod {
+    public static final String MOD_ID = "riftbound";
+    public static final Logger LOGGER = LogUtils.getLogger();
+
+    public RiftboundMod(IEventBus modEventBus) {
+        ModBlocks.register(modEventBus);
+        ModItems.register(modEventBus);
+        ModCreativeTabs.register(modEventBus);
+        ModMenus.register(modEventBus);
+        modEventBus.addListener(ModNetworking::registerPayloadHandlers);
+
+        NeoForge.EVENT_BUS.register(LootEvents.class);
+
+        LOGGER.info("Riftbound loaded");
+    }
+}
