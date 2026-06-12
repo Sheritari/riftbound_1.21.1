@@ -4,6 +4,7 @@ import com.riftbound.RiftboundMod;
 import com.riftbound.item.RiftboundBlockItem;
 import com.riftbound.item.RiftboundItem;
 import com.riftbound.item.ShardBladeItem;
+import com.riftbound.item.ShardStoneItem;
 import net.minecraft.world.item.Item;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredItem;
@@ -15,6 +16,11 @@ public final class ModItems {
     public static final DeferredItem<Item> SHARD_DUST = ITEMS.register(
             "shard_dust",
             () -> new RiftboundItem(new Item.Properties())
+    );
+
+    public static final DeferredItem<Item> SHARD_STONE = ITEMS.register(
+            "shard_stone",
+            () -> new ShardStoneItem(new Item.Properties())
     );
 
     public static final DeferredItem<RiftboundBlockItem> SHARD_ORE_ITEM = ITEMS.register(

@@ -22,6 +22,7 @@ public final class ModCreativeTabs {
                     .icon(() -> LootItemFactory.createNormalBlade())
                     .displayItems((parameters, output) -> {
                         output.accept(ModItems.SHARD_DUST.get());
+                        output.accept(ModItems.SHARD_STONE.get());
                         output.accept(ModBlocks.SHARD_ORE.get());
                         output.accept(LootItemFactory.createNormalBlade());
                     })

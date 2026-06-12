@@ -85,6 +85,25 @@ public final class LootItemFactory {
         return result;
     }
 
+    public static ItemStack addRandomSuffixIfMissing(ItemStack stack, RandomSource random) {
+        if (!stack.is(ModItems.SHARD_BLADE.get()) || LootDataHelper.hasSuffix(stack)) {
+            return ItemStack.EMPTY;
+        }
+
+        ItemRarity rarity = LootDataHelper.getRarity(stack);
+        if (rarity == ItemRarity.NORMAL) {
+            return addSuffix(stack, random, null);
+        }
+        if (rarity == ItemRarity.MAGIC && LootDataHelper.hasPrefix(stack)) {
+            return addSuffixToRare(stack, random, null);
+        }
+        if (rarity == ItemRarity.MAGIC) {
+            return addSuffix(stack, random, null);
+        }
+
+        return ItemStack.EMPTY;
+    }
+
     public static ItemStack rerollSuffix(ItemStack stack, RandomSource random, HolderLookup.Provider registries) {
         if (!stack.is(ModItems.SHARD_BLADE.get())) {
             return ItemStack.EMPTY;

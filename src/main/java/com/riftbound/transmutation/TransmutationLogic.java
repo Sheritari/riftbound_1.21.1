@@ -13,6 +13,14 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 
 public final class TransmutationLogic {
+    private enum Catalyst {
+        DUST,
+        STONE
+    }
+
+    private record Match(ItemStack blade, Catalyst catalyst) {
+    }
+
     private TransmutationLogic() {
     }
 
@@ -30,12 +38,19 @@ public final class TransmutationLogic {
     }
 
     public static ItemStack getResultWithSeed(ItemStack first, ItemStack second, long seed, HolderLookup.Provider registries) {
-        ItemStack blade = matchInputs(first, second);
-        if (blade == null || registries == null || seed == 0L) {
+        Match match = matchInputs(first, second);
+        if (match == null || registries == null || seed == 0L) {
             return ItemStack.EMPTY;
         }
 
         RandomSource random = RandomSource.create(seed);
+        return switch (match.catalyst()) {
+            case DUST -> getDustResult(match.blade(), random, registries);
+            case STONE -> LootItemFactory.addRandomSuffixIfMissing(match.blade(), random);
+        };
+    }
+
+    private static ItemStack getDustResult(ItemStack blade, RandomSource random, HolderLookup.Provider registries) {
         ItemRarity rarity = LootDataHelper.getRarity(blade);
 
         if (rarity == ItemRarity.NORMAL) {
@@ -55,9 +70,9 @@ public final class TransmutationLogic {
         ItemStack first = inputContainer.getItem(0);
         ItemStack second = inputContainer.getItem(1);
 
-        if (isDust(first)) {
+        if (isCatalyst(first)) {
             first.shrink(1);
-        } else if (isDust(second)) {
+        } else if (isCatalyst(second)) {
             second.shrink(1);
         }
 
@@ -68,15 +83,21 @@ public final class TransmutationLogic {
         }
     }
 
-    private static ItemStack matchInputs(ItemStack first, ItemStack second) {
+    private static Match matchInputs(ItemStack first, ItemStack second) {
         if (first.isEmpty() || second.isEmpty()) {
             return null;
         }
         if (isDust(first) && isShardBlade(second)) {
-            return second;
+            return new Match(second, Catalyst.DUST);
         }
         if (isDust(second) && isShardBlade(first)) {
-            return first;
+            return new Match(first, Catalyst.DUST);
+        }
+        if (isStone(first) && isShardBlade(second)) {
+            return new Match(second, Catalyst.STONE);
+        }
+        if (isStone(second) && isShardBlade(first)) {
+            return new Match(first, Catalyst.STONE);
         }
         return null;
     }
@@ -111,8 +132,16 @@ public final class TransmutationLogic {
         return hash;
     }
 
+    private static boolean isCatalyst(ItemStack stack) {
+        return isDust(stack) || isStone(stack);
+    }
+
     private static boolean isDust(ItemStack stack) {
         return stack.is(ModItems.SHARD_DUST.get());
+    }
+
+    private static boolean isStone(ItemStack stack) {
+        return stack.is(ModItems.SHARD_STONE.get());
     }
 
     private static boolean isShardBlade(ItemStack stack) {

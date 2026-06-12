@@ -1,4 +1,4 @@
-# Riftbound 0.1.4
+# Riftbound 0.1.5
 
 
 
@@ -6,11 +6,13 @@ A fantasy mod for Minecraft **1.21.1** (NeoForge).
 
 
 
-## Features (0.1.4)
+## Features (0.1.5)
 
 
 
-- **Shard Dust** — crafting currency (mob drops, smelting ore)
+- **Shard Dust** — rerolls suffixes on blades in Shard Crafting
+
+- **Shard Stone** — adds a random suffix to blades that do not have one yet
 
 - **Shard Ore** — mineable ore (creative / `/setblock` for now; worldgen planned)
 
@@ -26,7 +28,7 @@ A fantasy mod for Minecraft **1.21.1** (NeoForge).
 
 - **Craft tab** in the player inventory (survival and creative): horizontal input slots and a deterministic result preview
 
-- **Transmutation** — shard dust adds or rerolls suffixes only; prefix is preserved when upgrading magic → rare
+- **Transmutation** — shard dust rerolls suffixes; shard stone adds a suffix when the blade has none; prefix is preserved when upgrading magic → rare
 
 - **Localization** — English and Russian in-game strings
 
