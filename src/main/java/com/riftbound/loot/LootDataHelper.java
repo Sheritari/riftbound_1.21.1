@@ -65,7 +65,7 @@ public final class LootDataHelper {
     }
 
     public static void appendInstanceIdTooltip(ItemStack stack, List<Component> tooltipComponents) {
-        if (!isModItem(stack)) {
+        if (!usesInstanceId(stack)) {
             return;
         }
         String text = getInstanceId(stack)
@@ -74,8 +74,12 @@ public final class LootDataHelper {
         tooltipComponents.add(Component.literal(text).withStyle(ChatFormatting.DARK_GRAY));
     }
 
+    public static boolean usesInstanceId(ItemStack stack) {
+        return isModItem(stack) && stack.getMaxStackSize() == 1;
+    }
+
     public static boolean ensureInstanceId(ItemStack stack) {
-        if (!isModItem(stack) || getInstanceId(stack).isPresent()) {
+        if (!usesInstanceId(stack) || getInstanceId(stack).isPresent()) {
             return false;
         }
         assignInstanceId(stack);

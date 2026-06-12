@@ -1,62 +1,124 @@
-# Riftbound 0.1.2
-
-A fantasy mod for Minecraft **1.21.1** (NeoForge).
-
-## Features (0.1.2)
-
-- **Shard Dust** — crafting currency (mob drops, smelting ore)
-- **Shard Ore** — mineable ore (creative / `/setblock` for now; worldgen planned)
-- **Shard Blade** — base weapon with item rarity (normal / magic)
-- **5 affixes** on magic blades (damage, attack speed, fire aspect, and more)
-- **Mob loot** — hostile mobs can drop dust and blades
-- **Craft tab** in the player inventory (survival and creative): horizontal input slots and a deterministic result preview
-- **Transmutation** — shard dust + shard blade → magic blade; dust + magic blade → rerolled affix (different per item copy)
-- **Localization** — English and Russian in-game strings
-
-## Requirements
-
-- **Java 21** (JDK)
-- **NeoForge** for Minecraft 1.21.1
-
-## Development setup
-
-1. Clone the repository and open it as a Gradle project in your IDE.
-2. Wait for Gradle sync (first run may take 10–30 minutes while Minecraft dependencies download).
-3. Run the client:
-   ```bat
-   gradlew.bat runClient
-   ```
-4. In-game: open the **Riftbound** creative tab to grab items.
-
-## Building the mod JAR
-
-```bat
-gradlew.bat build
-```
-
-Output: `build/libs/riftbound-0.1.2.jar` — copy into your NeoForge 1.21.1 `mods` folder.
-
-## Project layout
-
-```
-src/main/java/com/riftbound/
-  RiftboundMod.java           — mod entry point
-  registry/                   — blocks, items, menus, creative tab
-  loot/                       — rarity, affixes, item generation
-  transmutation/              — combine rules and deterministic seeds
-  menu/                       — transmutation container
-  client/                     — screens and inventory tabs
-  event/                      — mob loot drops
-  network/                    — client/server tab switching
-```
-
-## Roadmap (0.2+)
-
-- Rare (yellow) items
-- Crafting altar block
-- Shard ore world generation
-- Reroll currency (second crafting orb)
-
-## License
-
-See [LICENSE](LICENSE). Mod license: All Rights Reserved.
+# Riftbound 0.1.2a
+
+
+
+A fantasy mod for Minecraft **1.21.1** (NeoForge).
+
+
+
+## Features (0.1.2a)
+
+
+
+- **Shard Dust** — crafting currency (mob drops, smelting ore)
+
+- **Shard Ore** — mineable ore (creative / `/setblock` for now; worldgen planned)
+
+- **Shard Blade** — base weapon with item rarity (normal / magic)
+
+- **5 affixes** on magic blades (damage, attack speed, fire aspect, and more)
+
+- **Mob loot** — hostile mobs can drop dust and blades
+
+- **Craft tab** in the player inventory (survival and creative): horizontal input slots and a deterministic result preview
+
+- **Transmutation** — shard dust + shard blade → magic blade; dust + magic blade → rerolled affix (different per item copy)
+
+- **Localization** — English and Russian in-game strings
+
+
+
+## Requirements
+
+
+
+- **Java 21** (JDK)
+
+- **NeoForge** for Minecraft 1.21.1
+
+
+
+## Development setup
+
+
+
+1. Clone the repository and open it as a Gradle project in your IDE.
+
+2. Wait for Gradle sync (first run may take 10–30 minutes while Minecraft dependencies download).
+
+3. Run the client:
+
+   ```bat
+
+   gradlew.bat runClient
+
+   ```
+
+4. In-game: open the **Riftbound** creative tab to grab items.
+
+
+
+## Building the mod JAR
+
+
+
+```bat
+
+gradlew.bat build
+
+```
+
+
+
+Output: `build/libs/riftbound-0.1.2a.jar` — copy into your NeoForge 1.21.1 `mods` folder.
+
+
+
+## Project layout
+
+
+
+```
+
+src/main/java/com/riftbound/
+
+  RiftboundMod.java           — mod entry point
+
+  registry/                   — blocks, items, menus, creative tab
+
+  loot/                       — rarity, affixes, item generation
+
+  transmutation/              — combine rules and deterministic seeds
+
+  menu/                       — transmutation container
+
+  client/                     — screens and inventory tabs
+
+  event/                      — mob loot drops
+
+  network/                    — client/server tab switching
+
+```
+
+
+
+## Roadmap (0.2+)
+
+
+
+- Rare (yellow) items
+
+- Crafting altar block
+
+- Shard ore world generation
+
+- Reroll currency (second crafting orb)
+
+
+
+## License
+
+
+
+See [LICENSE](LICENSE). Mod license: All Rights Reserved.
+
