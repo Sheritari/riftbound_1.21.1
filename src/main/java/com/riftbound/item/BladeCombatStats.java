@@ -20,10 +20,11 @@ public final class BladeCombatStats {
     public static final double MIN_BASE_DAMAGE = 5.0D;
     public static final double MAX_BASE_DAMAGE = 11.0D;
     public static final double ATTACK_SPEED = 1.45D;
-    public static final double REACH_BLOCKS = 3.1D;
+    private static final double VANILLA_SWORD_REACH_BLOCKS = 3.0D;
+    public static final double REACH_BONUS_BLOCKS = 0.1D;
+    public static final double REACH_BLOCKS = VANILLA_SWORD_REACH_BLOCKS + REACH_BONUS_BLOCKS;
 
     private static final double PLAYER_BASE_ATTACK_SPEED = 4.0D;
-    private static final double PLAYER_BASE_REACH = 3.0D;
 
     private BladeCombatStats() {
     }
@@ -55,9 +56,23 @@ public final class BladeCombatStats {
         if (!stack.is(ModItems.SHARD_BLADE.get())) {
             return;
         }
-        if (!stack.has(DataComponents.ATTRIBUTE_MODIFIERS) || hasSplitAttributeModifiers(stack)) {
+        if (!stack.has(DataComponents.ATTRIBUTE_MODIFIERS) || needsAttributeRefresh(stack)) {
             refreshAttributes(stack, registries);
         }
+    }
+
+    private static boolean needsAttributeRefresh(ItemStack stack) {
+        return hasSplitAttributeModifiers(stack) || hasStaleReachModifier(stack);
+    }
+
+    private static boolean hasStaleReachModifier(ItemStack stack) {
+        ItemAttributeModifiers modifiers = stack.get(DataComponents.ATTRIBUTE_MODIFIERS);
+        if (modifiers == null) {
+            return false;
+        }
+        return modifiers.modifiers().stream()
+                .filter(entry -> entry.attribute().is(Attributes.ENTITY_INTERACTION_RANGE))
+                .anyMatch(entry -> Math.abs(entry.modifier().amount() - REACH_BONUS_BLOCKS) > 0.001D);
     }
 
     private static boolean hasSplitAttributeModifiers(ItemStack stack) {
@@ -85,7 +100,7 @@ public final class BladeCombatStats {
         );
         builder.add(
                 Attributes.ENTITY_INTERACTION_RANGE,
-                modifier("reach", REACH_BLOCKS - PLAYER_BASE_REACH),
+                modifier("reach", REACH_BONUS_BLOCKS),
                 EquipmentSlotGroup.MAINHAND
         );
         stack.set(DataComponents.ATTRIBUTE_MODIFIERS, builder.build());
