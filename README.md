@@ -1,8 +1,8 @@
-# Riftbound 0.1.1
+# Riftbound 0.1.1a
 
 A fantasy mod for Minecraft **1.21.1** (NeoForge).
 
-## Features (0.1.1)
+## Features (0.1.1a)
 
 - **Shard Dust** — crafting currency (mob drops, smelting ore)
 - **Shard Ore** — mineable ore (creative / `/setblock` for now; worldgen planned)
@@ -34,7 +34,7 @@ A fantasy mod for Minecraft **1.21.1** (NeoForge).
 gradlew.bat build
 ```
 
-Output: `build/libs/riftbound-0.1.1.jar` — copy into your NeoForge 1.21.1 `mods` folder.
+Output: `build/libs/riftbound-0.1.1a.jar` — copy into your NeoForge 1.21.1 `mods` folder.
 
 ## Project layout
 
@@ -59,4 +59,4 @@ src/main/java/com/riftbound/
 
 ## License
 
-See `TEMPLATE_LICENSE.txt` (MDK template). Mod license: All Rights Reserved (see `gradle.properties`).
+See [LICENSE](LICENSE). Mod license: All Rights Reserved.
