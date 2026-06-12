@@ -1,6 +1,7 @@
 package com.riftbound.loot;
 
 import com.riftbound.RiftboundMod;
+import com.riftbound.item.ItemBaseLevelProvider;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
@@ -31,7 +32,14 @@ public final class LootDataHelper {
     }
 
     public static int getItemLevel(ItemStack stack) {
-        return readTag(stack).map(tag -> tag.getInt(TAG_ILVL)).orElse(1);
+        return readTag(stack).map(tag -> tag.getInt(TAG_ILVL)).orElseGet(() -> getBaseItemLevel(stack));
+    }
+
+    public static int getBaseItemLevel(ItemStack stack) {
+        if (stack.getItem() instanceof ItemBaseLevelProvider provider) {
+            return provider.getBaseItemLevel();
+        }
+        return 1;
     }
 
     public static List<RolledAffix> getAffixes(ItemStack stack) {

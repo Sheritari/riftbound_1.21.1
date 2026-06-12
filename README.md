@@ -1,4 +1,4 @@
-# Riftbound 0.1.2a
+# Riftbound 0.1.2b
 
 
 
@@ -6,7 +6,7 @@ A fantasy mod for Minecraft **1.21.1** (NeoForge).
 
 
 
-## Features (0.1.2a)
+## Features (0.1.2b)
 
 
 
@@ -18,7 +18,7 @@ A fantasy mod for Minecraft **1.21.1** (NeoForge).
 
 - **5 affixes** on magic blades (damage, attack speed, fire aspect, and more)
 
-- **Mob loot** — hostile mobs can drop dust and blades
+- **Mob loot** — hostile mobs drop dust; **Shard Blade** (ilvl 1) drops only from vanilla Minecraft mobs
 
 - **Craft tab** in the player inventory (survival and creative): horizontal input slots and a deterministic result preview
 
@@ -70,7 +70,7 @@ gradlew.bat build
 
 
 
-Output: `build/libs/riftbound-0.1.2a.jar` — copy into your NeoForge 1.21.1 `mods` folder.
+Output: `build/libs/riftbound-0.1.2b.jar` — copy into your NeoForge 1.21.1 `mods` folder.
 
 
 

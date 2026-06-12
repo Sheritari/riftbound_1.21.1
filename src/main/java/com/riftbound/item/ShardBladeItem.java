@@ -15,9 +15,16 @@ import net.minecraft.world.level.Level;
 
 import java.util.List;
 
-public class ShardBladeItem extends SwordItem {
+public class ShardBladeItem extends SwordItem implements ItemBaseLevelProvider {
+    public static final int BASE_ITEM_LEVEL = 1;
+
     public ShardBladeItem(Properties properties) {
         super(Tiers.IRON, properties);
+    }
+
+    @Override
+    public int getBaseItemLevel() {
+        return BASE_ITEM_LEVEL;
     }
 
     @Override

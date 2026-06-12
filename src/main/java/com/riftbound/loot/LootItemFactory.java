@@ -1,5 +1,6 @@
 package com.riftbound.loot;
 
+import com.riftbound.item.ShardBladeItem;
 import com.riftbound.registry.ModItems;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
@@ -14,8 +15,9 @@ public final class LootItemFactory {
     private LootItemFactory() {
     }
 
-    public static ItemStack createShardBlade(RandomSource random, int itemLevel, ItemRarity rarity, HolderLookup.Provider registries) {
+    public static ItemStack createShardBlade(RandomSource random, ItemRarity rarity, HolderLookup.Provider registries) {
         ItemStack stack = new ItemStack(ModItems.SHARD_BLADE.get());
+        int itemLevel = LootDataHelper.getBaseItemLevel(stack);
         List<RolledAffix> affixes = new ArrayList<>();
 
         if (rarity == ItemRarity.MAGIC) {
