@@ -1,6 +1,7 @@
 package com.riftbound;
 
 import com.mojang.logging.LogUtils;
+import com.riftbound.event.AnvilEvents;
 import com.riftbound.event.BladeCombatEvents;
 import com.riftbound.event.ItemInstanceEvents;
 import com.riftbound.event.LootEvents;
@@ -29,6 +30,7 @@ public class RiftboundMod {
         NeoForge.EVENT_BUS.register(LootEvents.class);
         NeoForge.EVENT_BUS.register(ItemInstanceEvents.class);
         NeoForge.EVENT_BUS.register(BladeCombatEvents.class);
+        NeoForge.EVENT_BUS.register(AnvilEvents.class);
 
         LOGGER.info("Riftbound loaded");
     }
