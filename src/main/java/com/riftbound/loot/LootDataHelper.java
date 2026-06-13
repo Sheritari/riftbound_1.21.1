@@ -16,6 +16,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,11 +25,14 @@ public final class LootDataHelper {
     private static final String TAG_ILVL = "Ilvl";
     private static final String TAG_PREFIX = "Prefix";
     private static final String TAG_SUFFIX = "Suffix";
+    private static final String TAG_PREFIXES = "Prefixes";
+    private static final String TAG_SUFFIXES = "Suffixes";
     private static final String TAG_AFFIXES = "Affixes";
     private static final String TAG_AFFIX_ID = "Id";
     private static final String TAG_AFFIX_VALUE = "Value";
     private static final String TAG_AFFIX_VALUES = "Values";
     private static final String TAG_INSTANCE_ID = "InstanceId";
+    private static final String TAG_RARE_NAME = "RareName";
 
     private LootDataHelper() {
     }
@@ -56,27 +60,50 @@ public final class LootDataHelper {
         return 1;
     }
 
+    public static List<RolledAffix> getPrefixes(ItemStack stack) {
+        return readAffixList(stack, TAG_PREFIXES, TAG_PREFIX);
+    }
+
+    public static List<RolledAffix> getSuffixes(ItemStack stack) {
+        return readAffixList(stack, TAG_SUFFIXES, TAG_SUFFIX);
+    }
+
     public static Optional<RolledAffix> getPrefix(ItemStack stack) {
-        return readAffixTag(stack, TAG_PREFIX);
+        List<RolledAffix> prefixes = getPrefixes(stack);
+        return prefixes.isEmpty() ? Optional.empty() : Optional.of(prefixes.getFirst());
     }
 
     public static Optional<RolledAffix> getSuffix(ItemStack stack) {
-        return readAffixTag(stack, TAG_SUFFIX);
+        List<RolledAffix> suffixes = getSuffixes(stack);
+        return suffixes.isEmpty() ? Optional.empty() : Optional.of(suffixes.getFirst());
     }
 
     public static List<RolledAffix> getAffixes(ItemStack stack) {
         List<RolledAffix> affixes = new ArrayList<>();
-        getPrefix(stack).ifPresent(affixes::add);
-        getSuffix(stack).ifPresent(affixes::add);
+        affixes.addAll(getPrefixes(stack));
+        affixes.addAll(getSuffixes(stack));
         return affixes;
     }
 
     public static boolean hasPrefix(ItemStack stack) {
-        return getPrefix(stack).isPresent();
+        return !getPrefixes(stack).isEmpty();
     }
 
     public static boolean hasSuffix(ItemStack stack) {
-        return getSuffix(stack).isPresent();
+        return !getSuffixes(stack).isEmpty();
+    }
+
+    public static Optional<RareNameRoll> getRareName(ItemStack stack) {
+        return readTag(stack).flatMap(tag -> {
+            if (!tag.contains(TAG_RARE_NAME, Tag.TAG_STRING)) {
+                return Optional.empty();
+            }
+            String stored = tag.getString(TAG_RARE_NAME);
+            if (!stored.contains("/")) {
+                return Optional.empty();
+            }
+            return Optional.of(RareNameRoll.parseStored(stored));
+        });
     }
 
     public static Optional<Long> getInstanceId(ItemStack stack) {
@@ -127,6 +154,21 @@ public final class LootDataHelper {
         if (!tag.contains(TAG_INSTANCE_ID, Tag.TAG_LONG)) {
             tag.putLong(TAG_INSTANCE_ID, RandomSource.createNewThreadLocalInstance().nextLong());
             changed = true;
+        }
+
+        ItemRarity rarity = ItemRarity.fromId(tag.getString(TAG_RARITY));
+        ItemRarity normalized = AffixLimits.normalizeRarity(rarity, getPrefixes(stack), getSuffixes(stack));
+        if (normalized != rarity) {
+            tag.putString(TAG_RARITY, normalized.getId());
+            tag.remove(TAG_RARE_NAME);
+            changed = true;
+        } else if (normalized == ItemRarity.RARE) {
+            String storedRareName = tag.contains(TAG_RARE_NAME, Tag.TAG_STRING) ? tag.getString(TAG_RARE_NAME) : "";
+            if (!storedRareName.contains("/")) {
+                long seed = tag.getLong(TAG_INSTANCE_ID);
+                tag.putString(TAG_RARE_NAME, RareNameGenerator.rollSwordName(RandomSource.create(seed)).store());
+                changed = true;
+            }
         }
 
         if (changed) {
@@ -186,28 +228,42 @@ public final class LootDataHelper {
             ItemStack stack,
             ItemRarity rarity,
             int itemLevel,
-            Optional<RolledAffix> prefix,
-            Optional<RolledAffix> suffix
+            List<RolledAffix> prefixes,
+            List<RolledAffix> suffixes
     ) {
         long instanceId = getInstanceId(stack).orElseGet(() -> RandomSource.createNewThreadLocalInstance().nextLong());
-        write(stack, rarity, itemLevel, prefix, suffix, instanceId);
+        write(stack, rarity, itemLevel, prefixes, suffixes, instanceId, Optional.empty());
     }
 
     public static void write(
             ItemStack stack,
             ItemRarity rarity,
             int itemLevel,
-            Optional<RolledAffix> prefix,
-            Optional<RolledAffix> suffix,
+            List<RolledAffix> prefixes,
+            List<RolledAffix> suffixes,
             long instanceId
+    ) {
+        write(stack, rarity, itemLevel, prefixes, suffixes, instanceId, Optional.empty());
+    }
+
+    public static void write(
+            ItemStack stack,
+            ItemRarity rarity,
+            int itemLevel,
+            List<RolledAffix> prefixes,
+            List<RolledAffix> suffixes,
+            long instanceId,
+            Optional<RareNameRoll> rareName
     ) {
         CompoundTag tag = new CompoundTag();
         tag.putString(TAG_RARITY, rarity.getId());
         tag.putInt(TAG_ILVL, itemLevel);
         tag.putLong(TAG_INSTANCE_ID, instanceId);
-
-        prefix.ifPresent(affix -> tag.put(TAG_PREFIX, writeAffixTag(affix)));
-        suffix.ifPresent(affix -> tag.put(TAG_SUFFIX, writeAffixTag(affix)));
+        tag.put(TAG_PREFIXES, writeAffixList(prefixes));
+        tag.put(TAG_SUFFIXES, writeAffixList(suffixes));
+        if (rarity == ItemRarity.RARE) {
+            rareName.ifPresent(name -> tag.putString(TAG_RARE_NAME, name.store()));
+        }
 
         stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
     }
@@ -218,19 +274,38 @@ public final class LootDataHelper {
         stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
     }
 
-    private static Optional<RolledAffix> readAffixTag(ItemStack stack, String key) {
-        return readTag(stack).flatMap(tag -> {
-            if (tag.contains(key, Tag.TAG_COMPOUND)) {
-                return Optional.of(parseAffixTag(tag.getCompound(key)));
+    private static List<RolledAffix> readAffixList(ItemStack stack, String listKey, String legacyKey) {
+        return readTag(stack).map(tag -> {
+            if (tag.contains(listKey, Tag.TAG_LIST)) {
+                return parseAffixList(tag.getList(listKey, Tag.TAG_COMPOUND));
             }
-            if (TAG_PREFIX.equals(key) && tag.contains(TAG_AFFIXES, Tag.TAG_LIST)) {
+            if (tag.contains(legacyKey, Tag.TAG_COMPOUND)) {
+                return List.of(parseAffixTag(tag.getCompound(legacyKey)));
+            }
+            if (TAG_PREFIXES.equals(listKey) && tag.contains(TAG_AFFIXES, Tag.TAG_LIST)) {
                 ListTag legacy = tag.getList(TAG_AFFIXES, Tag.TAG_COMPOUND);
                 if (!legacy.isEmpty()) {
-                    return Optional.of(parseLegacyAffixTag((CompoundTag) legacy.get(0)));
+                    return List.of(parseLegacyAffixTag((CompoundTag) legacy.get(0)));
                 }
             }
-            return Optional.empty();
-        });
+            return Collections.<RolledAffix>emptyList();
+        }).orElseGet(Collections::emptyList);
+    }
+
+    private static List<RolledAffix> parseAffixList(ListTag listTag) {
+        List<RolledAffix> affixes = new ArrayList<>(listTag.size());
+        for (Tag entry : listTag) {
+            affixes.add(parseAffixTag((CompoundTag) entry));
+        }
+        return affixes;
+    }
+
+    private static ListTag writeAffixList(List<RolledAffix> affixes) {
+        ListTag listTag = new ListTag();
+        for (RolledAffix affix : affixes) {
+            listTag.add(writeAffixTag(affix));
+        }
+        return listTag;
     }
 
     private static CompoundTag writeAffixTag(RolledAffix affix) {

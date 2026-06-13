@@ -3,6 +3,8 @@ package com.riftbound.item;
 import com.riftbound.loot.AffixTooltipHelper;
 import com.riftbound.loot.ItemRarity;
 import com.riftbound.loot.LootDataHelper;
+import com.riftbound.loot.LootItemFactory;
+import com.riftbound.loot.RolledAffix;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -31,7 +33,10 @@ public class ShardBladeItem extends Item implements ItemBaseLevelProvider {
             return;
         }
 
-        LootDataHelper.ensureLootDefaults(stack);
+        boolean changed = LootDataHelper.ensureLootDefaults(stack);
+        if (changed) {
+            LootItemFactory.refreshDisplayName(stack);
+        }
         LootDataHelper.deduplicateInstanceId(player.getInventory(), stack, slotId);
     }
 
@@ -52,8 +57,12 @@ public class ShardBladeItem extends Item implements ItemBaseLevelProvider {
         ));
         tooltipComponents.add(Component.translatable("tooltip.riftbound.implicit.accuracy"));
 
-        LootDataHelper.getPrefix(stack).ifPresent(affix -> tooltipComponents.add(AffixTooltipHelper.describe(affix)));
-        LootDataHelper.getSuffix(stack).ifPresent(affix -> tooltipComponents.add(AffixTooltipHelper.describe(affix)));
+        for (RolledAffix affix : LootDataHelper.getPrefixes(stack)) {
+            tooltipComponents.add(AffixTooltipHelper.describe(affix));
+        }
+        for (RolledAffix affix : LootDataHelper.getSuffixes(stack)) {
+            tooltipComponents.add(AffixTooltipHelper.describe(affix));
+        }
 
         ItemRarity rarity = LootDataHelper.getRarity(stack);
         tooltipComponents.add(Component.translatable("tooltip.riftbound.rarity." + rarity.getId()).withStyle(rarity.style()));
