@@ -73,7 +73,13 @@ public class TransmutationMenu extends AbstractContainerMenu {
     private void ensureUniqueBladeIds() {
         for (int slot = 0; slot < 2; slot++) {
             ItemStack stack = inputContainer.getItem(slot);
-            if (LootDataHelper.ensureInstanceId(stack)) {
+            if (stack.isEmpty()) {
+                continue;
+            }
+
+            boolean changed = LootDataHelper.ensureLootDefaults(stack);
+            changed |= LootDataHelper.deduplicateInstanceId(inputContainer, stack, slot);
+            if (changed) {
                 inputContainer.setItem(slot, stack);
             }
         }

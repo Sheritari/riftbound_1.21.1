@@ -11,6 +11,7 @@ import net.minecraft.nbt.DoubleTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 
@@ -149,6 +150,36 @@ public final class LootDataHelper {
         long instanceId = RandomSource.createNewThreadLocalInstance().nextLong();
         writeInstanceId(stack, instanceId);
         return instanceId;
+    }
+
+    public static boolean deduplicateInstanceId(Container inventory, ItemStack stack, int slotId) {
+        if (!stack.is(ModItems.SHARD_BLADE.get())) {
+            return false;
+        }
+
+        Optional<Long> instanceId = getInstanceId(stack);
+        if (instanceId.isEmpty()) {
+            return false;
+        }
+
+        long currentId = instanceId.get();
+        for (int i = 0; i < inventory.getContainerSize(); i++) {
+            if (i == slotId) {
+                continue;
+            }
+
+            ItemStack other = inventory.getItem(i);
+            if (!other.is(ModItems.SHARD_BLADE.get())) {
+                continue;
+            }
+
+            if (getInstanceId(other).orElse(0L) == currentId) {
+                assignInstanceId(stack);
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public static void write(

@@ -5,6 +5,7 @@ import com.riftbound.loot.ItemRarity;
 import com.riftbound.loot.LootDataHelper;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -26,9 +27,12 @@ public class ShardBladeItem extends Item implements ItemBaseLevelProvider {
 
     @Override
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
-        if (!level.isClientSide()) {
-            LootDataHelper.ensureLootDefaults(stack);
+        if (level.isClientSide() || !(entity instanceof Player player)) {
+            return;
         }
+
+        LootDataHelper.ensureLootDefaults(stack);
+        LootDataHelper.deduplicateInstanceId(player.getInventory(), stack, slotId);
     }
 
     @Override
