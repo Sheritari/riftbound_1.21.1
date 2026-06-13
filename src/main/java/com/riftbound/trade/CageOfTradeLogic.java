@@ -16,14 +16,18 @@ public final class CageOfTradeLogic {
         int count = 0;
         for (int slot = 0; slot < INPUT_SLOTS; slot++) {
             ItemStack stack = container.getItem(slot);
-            if (!stack.isEmpty() && LootDataHelper.getRarity(stack) == ItemRarity.MAGIC) {
+            if (!stack.isEmpty() && isMagicTradeItem(stack)) {
                 count += stack.getCount();
             }
         }
         return count;
     }
 
-    public static boolean acceptsInput(ItemStack stack) {
+    public static boolean canPlaceInInput(ItemStack stack) {
+        return !stack.isEmpty() && LootDataHelper.isModItem(stack);
+    }
+
+    public static boolean isMagicTradeItem(ItemStack stack) {
         return !stack.isEmpty() && LootDataHelper.getRarity(stack) == ItemRarity.MAGIC;
     }
 
@@ -37,7 +41,10 @@ public final class CageOfTradeLogic {
 
     public static void consumeInputs(Container container) {
         for (int slot = 0; slot < INPUT_SLOTS; slot++) {
-            container.setItem(slot, ItemStack.EMPTY);
+            ItemStack stack = container.getItem(slot);
+            if (isMagicTradeItem(stack)) {
+                container.setItem(slot, ItemStack.EMPTY);
+            }
         }
         container.setChanged();
     }

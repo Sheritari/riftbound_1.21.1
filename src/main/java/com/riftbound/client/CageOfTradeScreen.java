@@ -10,35 +10,31 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
 public class CageOfTradeScreen extends AbstractContainerScreen<CageOfTradeMenu> {
-    private static final ResourceLocation CHEST_TEXTURE =
-            ResourceLocation.withDefaultNamespace("textures/gui/container/generic_54.png");
-    private static final ResourceLocation ARROW_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(RiftboundMod.MOD_ID, "textures/gui/cage_of_trade_arrow.png");
+    private static final ResourceLocation TEXTURE =
+            ResourceLocation.fromNamespaceAndPath(RiftboundMod.MOD_ID, "textures/gui/cage_of_trade.png");
 
     public CageOfTradeScreen(CageOfTradeMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
         this.imageWidth = CageOfTradeLayout.PANEL_WIDTH;
         this.imageHeight = CageOfTradeLayout.PANEL_HEIGHT;
+        this.titleLabelX = 8;
+        this.titleLabelY = 6;
         this.inventoryLabelX = 8;
         this.inventoryLabelY = CageOfTradeLayout.INVENTORY_LABEL_Y;
     }
 
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
-        int left = this.leftPos;
-        int top = this.topPos;
-
-        graphics.blit(CHEST_TEXTURE, left, top, 0, 0, this.imageWidth, this.imageHeight);
         graphics.blit(
-                ARROW_TEXTURE,
-                left + CageOfTradeLayout.ARROW_X,
-                top + CageOfTradeLayout.ARROW_Y,
+                TEXTURE,
+                this.leftPos,
+                this.topPos,
                 0,
                 0,
-                CageOfTradeLayout.ARROW_WIDTH,
-                CageOfTradeLayout.ARROW_HEIGHT,
-                CageOfTradeLayout.ARROW_WIDTH,
-                CageOfTradeLayout.ARROW_HEIGHT
+                this.imageWidth,
+                this.imageHeight,
+                CageOfTradeLayout.TEXTURE_WIDTH,
+                CageOfTradeLayout.TEXTURE_HEIGHT
         );
     }
 

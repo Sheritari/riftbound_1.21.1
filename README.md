@@ -1,4 +1,4 @@
-# Riftbound 0.1.7
+# Riftbound 0.1.7a
 
 
 
@@ -6,7 +6,7 @@ A fantasy mod for Minecraft **1.21.1** (NeoForge).
 
 
 
-## Features (0.1.7)
+## Features (0.1.7a)
 
 
 
@@ -18,7 +18,7 @@ A fantasy mod for Minecraft **1.21.1** (NeoForge).
 
 - **Orb of Resonant** — placeholder currency (stacks to 40)
 
-- **Cage of Trade** — chest-like GUI: deposit magic (blue) items on the left, take Resonant Shards on the right (1:1); taking shards consumes all inputs
+- **Cage of Trade** — chest-like GUI: deposit magic (blue) items on the left, take Resonant Shards on the right (1:1); taking shards consumes all inputs; inputs drop on close
 
 - **Shard Ore** — mineable ore (creative / `/setblock` for now; worldgen planned)
 

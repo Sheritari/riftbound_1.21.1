@@ -17,8 +17,10 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 public class CageOfTradeMenu extends AbstractContainerMenu {
-    public static final int OUTPUT_SLOT = CageOfTradeLayout.INPUT_SLOTS;
-    public static final int FIRST_PLAYER_SLOT = OUTPUT_SLOT + 1;
+    public static final int OUTPUT_SLOT_START = CageOfTradeLayout.INPUT_SLOTS;
+    public static final int OUTPUT_PRIMARY_SLOT = OUTPUT_SLOT_START;
+    public static final int OUTPUT_SLOT_END = OUTPUT_SLOT_START + 1;
+    public static final int FIRST_PLAYER_SLOT = OUTPUT_SLOT_END;
     public static final int LAST_PLAYER_SLOT = FIRST_PLAYER_SLOT + 35;
 
     private final Container inputContainer;
@@ -54,7 +56,11 @@ public class CageOfTradeMenu extends AbstractContainerMenu {
             }
         }
 
-        addSlot(new CageOfTradeOutputSlot(this, CageOfTradeLayout.OUTPUT_X, CageOfTradeLayout.OUTPUT_Y));
+        addSlot(new CageOfTradeOutputSlot(
+                this,
+                CageOfTradeLayout.outputSlotX(0),
+                CageOfTradeLayout.outputSlotY(0)
+        ));
 
         for (int row = 0; row < 3; row++) {
             for (int column = 0; column < 9; column++) {
@@ -99,6 +105,10 @@ public class CageOfTradeMenu extends AbstractContainerMenu {
         broadcastChanges();
     }
 
+    private static boolean isOutputSlot(int slotIndex) {
+        return slotIndex >= OUTPUT_SLOT_START && slotIndex < OUTPUT_SLOT_END;
+    }
+
     @Override
     public void slotsChanged(Container container) {
         super.slotsChanged(container);
@@ -107,7 +117,7 @@ public class CageOfTradeMenu extends AbstractContainerMenu {
 
     @Override
     public void clicked(int slotIndex, int dragType, ClickType clickType, Player clickingPlayer) {
-        if (slotIndex == OUTPUT_SLOT && clickType == ClickType.PICKUP) {
+        if (slotIndex == OUTPUT_PRIMARY_SLOT && clickType == ClickType.PICKUP) {
             ItemStack output = getOutputPreview();
             if (!output.isEmpty()) {
                 ItemStack carried = getCarried();
@@ -126,7 +136,7 @@ public class CageOfTradeMenu extends AbstractContainerMenu {
             }
         }
 
-        if (slotIndex == OUTPUT_SLOT) {
+        if (isOutputSlot(slotIndex)) {
             return;
         }
 
@@ -136,12 +146,12 @@ public class CageOfTradeMenu extends AbstractContainerMenu {
 
     @Override
     public ItemStack quickMoveStack(Player player, int slotIndex) {
-        if (slotIndex == OUTPUT_SLOT) {
+        if (isOutputSlot(slotIndex)) {
             return ItemStack.EMPTY;
         }
 
         ItemStack original = ItemStack.EMPTY;
-        Slot slot = slots.get(slotIndex);
+        Slot slot = this.slots.get(slotIndex);
         if (slot == null || !slot.hasItem()) {
             return ItemStack.EMPTY;
         }
@@ -153,7 +163,7 @@ public class CageOfTradeMenu extends AbstractContainerMenu {
             if (!moveItemStackTo(stackInSlot, FIRST_PLAYER_SLOT, LAST_PLAYER_SLOT + 1, true)) {
                 return ItemStack.EMPTY;
             }
-        } else if (!CageOfTradeLogic.acceptsInput(stackInSlot)
+        } else if (!CageOfTradeLogic.canPlaceInInput(stackInSlot)
                 || !moveItemStackTo(stackInSlot, 0, CageOfTradeLogic.INPUT_SLOTS, false)) {
             return ItemStack.EMPTY;
         }
@@ -178,6 +188,12 @@ public class CageOfTradeMenu extends AbstractContainerMenu {
         return stillValid(access, player, ModBlocks.CAGE_OF_TRADE.get());
     }
 
+    @Override
+    public void removed(Player player) {
+        super.removed(player);
+        access.execute((level, pos) -> clearContainer(player, inputContainer));
+    }
+
     private static class MagicInputSlot extends Slot {
         MagicInputSlot(Container container, int slot, int x, int y) {
             super(container, slot, x, y);
@@ -185,7 +201,7 @@ public class CageOfTradeMenu extends AbstractContainerMenu {
 
         @Override
         public boolean mayPlace(ItemStack stack) {
-            return CageOfTradeLogic.acceptsInput(stack);
+            return CageOfTradeLogic.canPlaceInInput(stack);
         }
     }
 

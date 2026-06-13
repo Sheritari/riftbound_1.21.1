@@ -1,6 +1,12 @@
 {
-  "parent": "minecraft:block/cube_all",
+  "parent": "minecraft:block/cube",
   "textures": {
-    "all": "minecraft:block/iron_bars"
+    "down": "riftbound:block/cage_of_trade_bottom",
+    "up": "riftbound:block/cage_of_trade_top",
+    "north": "riftbound:block/cage_of_trade_side",
+    "east": "riftbound:block/cage_of_trade_side",
+    "south": "riftbound:block/cage_of_trade_side",
+    "west": "riftbound:block/cage_of_trade_side",
+    "particle": "riftbound:block/cage_of_trade_side"
   }
 }
