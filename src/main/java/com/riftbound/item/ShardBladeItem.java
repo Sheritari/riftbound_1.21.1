@@ -1,6 +1,7 @@
 package com.riftbound.item;
 
 import com.riftbound.loot.AffixTooltipHelper;
+import com.riftbound.loot.ItemLootCategory;
 import com.riftbound.loot.ItemRarity;
 import com.riftbound.loot.LootDataHelper;
 import com.riftbound.loot.LootItemFactory;
@@ -15,7 +16,7 @@ import net.minecraft.world.level.Level;
 
 import java.util.List;
 
-public class ShardBladeItem extends Item implements ItemBaseLevelProvider {
+public class ShardBladeItem extends Item implements ItemLootProfile {
     public static final int BASE_ITEM_LEVEL = 1;
 
     public ShardBladeItem(Properties properties) {
@@ -25,6 +26,11 @@ public class ShardBladeItem extends Item implements ItemBaseLevelProvider {
     @Override
     public int getBaseItemLevel() {
         return BASE_ITEM_LEVEL;
+    }
+
+    @Override
+    public ItemLootCategory getLootCategory() {
+        return ItemLootCategory.ONE_HAND_SWORD;
     }
 
     @Override

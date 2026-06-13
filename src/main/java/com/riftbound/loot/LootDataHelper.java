@@ -2,6 +2,7 @@ package com.riftbound.loot;
 
 import com.riftbound.RiftboundMod;
 import com.riftbound.item.ItemBaseLevelProvider;
+import com.riftbound.item.ItemLootProfile;
 import com.riftbound.registry.ModItems;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
@@ -58,6 +59,17 @@ public final class LootDataHelper {
             return provider.getBaseItemLevel();
         }
         return 1;
+    }
+
+    public static ItemLootCategory getLootCategory(ItemStack stack) {
+        if (stack.getItem() instanceof ItemLootProfile profile) {
+            return profile.getLootCategory();
+        }
+        return ItemLootCategory.ONE_HAND_SWORD;
+    }
+
+    public static boolean canReceiveAffixes(ItemStack stack) {
+        return stack.getItem() instanceof ItemLootProfile profile && profile.canReceiveAffixes();
     }
 
     public static List<RolledAffix> getPrefixes(ItemStack stack) {

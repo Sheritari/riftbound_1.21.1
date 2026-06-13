@@ -28,7 +28,8 @@ public class RiftboundWorldLootModifier extends LootModifier {
             return generatedLoot;
         }
 
-        WorldLootRoller.rollModDrop(context.getRandom(), context.getLevel().registryAccess())
+        int areaItemLevel = AreaItemLevel.forLootContext(context);
+        WorldLootRoller.rollModDrop(context.getRandom(), context.getLevel().registryAccess(), areaItemLevel)
                 .ifPresent(generatedLoot::add);
         return generatedLoot;
     }

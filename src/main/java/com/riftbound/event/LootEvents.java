@@ -1,5 +1,6 @@
 package com.riftbound.event;
 
+import com.riftbound.loot.AreaItemLevel;
 import com.riftbound.loot.WorldLootRoller;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -31,7 +32,8 @@ public final class LootEvents {
         }
 
         RandomSource random = serverLevel.getRandom();
-        WorldLootRoller.rollModDrop(random, serverLevel.registryAccess())
+        int areaItemLevel = AreaItemLevel.forEntity(entity);
+        WorldLootRoller.rollModDrop(random, serverLevel.registryAccess(), areaItemLevel)
                 .ifPresent(stack -> event.getDrops().add(createDrop(entity, stack)));
     }
 

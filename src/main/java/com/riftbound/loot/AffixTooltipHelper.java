@@ -23,7 +23,15 @@ public final class AffixTooltipHelper {
                     formatInt(affix.value(0)),
                     formatInt(affix.value(1))
             );
-            case "heavy", "of_skill", "of_needling", "of_steadiness", "of_success" -> Component.translatable(
+            case "heavy", "serrated", "of_skill", "of_needling", "of_steadiness", "of_success" -> Component.translatable(
+                    definition.translationKey() + ".desc",
+                    formatInt(affix.value())
+            );
+            case "glinting" -> Component.translatable(
+                    definition.translationKey() + ".desc",
+                    formatInt(affix.value())
+            );
+            case "lacquered" -> Component.translatable(
                     definition.translationKey() + ".desc",
                     formatInt(affix.value())
             );

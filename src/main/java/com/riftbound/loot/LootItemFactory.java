@@ -1,21 +1,12 @@
 package com.riftbound.loot;
 
-
-
 import com.riftbound.registry.ModItems;
-
 import net.minecraft.core.HolderLookup;
-
 import net.minecraft.core.component.DataComponents;
-
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-
 import net.minecraft.util.RandomSource;
-
 import net.minecraft.world.item.ItemStack;
-
-
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -23,22 +14,20 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-
-
 public final class LootItemFactory {
-
     private LootItemFactory() {
-
     }
 
-
-
     public static ItemStack createNormalBlade() {
+        return createNormalBlade(1);
+    }
+
+    public static ItemStack createNormalBlade(int itemLevel) {
         ItemStack stack = new ItemStack(ModItems.SHARD_BLADE.get());
         long instanceId = RandomSource.createNewThreadLocalInstance().nextLong();
         finalizeBlade(
                 stack,
-                LootDataHelper.getBaseItemLevel(stack),
+                Math.max(1, itemLevel),
                 ItemRarity.NORMAL,
                 List.of(),
                 List.of(),
@@ -50,26 +39,36 @@ public final class LootItemFactory {
     }
 
     public static ItemStack createShardBlade(RandomSource random, ItemRarity rarity, HolderLookup.Provider registries) {
+        return createShardBlade(random, rarity, registries, 1);
+    }
+
+    public static ItemStack createShardBlade(
+            RandomSource random,
+            ItemRarity rarity,
+            HolderLookup.Provider registries,
+            int itemLevel
+    ) {
         ItemStack stack = new ItemStack(ModItems.SHARD_BLADE.get());
-        int itemLevel = LootDataHelper.getBaseItemLevel(stack);
+        ItemLootCategory category = LootDataHelper.getLootCategory(stack);
+        int resolvedLevel = Math.max(1, itemLevel);
 
         List<RolledAffix> prefixes = List.of();
         List<RolledAffix> suffixes = List.of();
 
         if (rarity == ItemRarity.MAGIC) {
             if (random.nextBoolean()) {
-                prefixes = List.of(AffixPool.rollPrefix(random, itemLevel));
+                prefixes = List.of(AffixPool.rollPrefix(random, category, resolvedLevel));
             } else {
-                suffixes = List.of(AffixPool.rollSuffix(random, itemLevel));
+                suffixes = List.of(AffixPool.rollSuffix(random, category, resolvedLevel));
             }
         } else if (rarity == ItemRarity.RARE) {
-            AffixPool.RareAffixRoll rareAffixes = AffixPool.rollRareAffixes(random, itemLevel);
+            AffixPool.RareAffixRoll rareAffixes = AffixPool.rollRareAffixes(random, category, resolvedLevel);
             prefixes = rareAffixes.prefixes();
             suffixes = rareAffixes.suffixes();
         }
 
         long instanceId = random.nextLong();
-        finalizeBlade(stack, itemLevel, rarity, prefixes, suffixes, instanceId, random, Optional.empty());
+        finalizeBlade(stack, resolvedLevel, rarity, prefixes, suffixes, instanceId, random, Optional.empty());
         return stack;
     }
 
@@ -92,7 +91,7 @@ public final class LootItemFactory {
     }
 
     public static ItemStack applyPrefixCatalyst(ItemStack stack, RandomSource random, HolderLookup.Provider registries) {
-        if (!stack.is(ModItems.SHARD_BLADE.get())) {
+        if (!LootDataHelper.canReceiveAffixes(stack)) {
             return ItemStack.EMPTY;
         }
 
@@ -108,7 +107,7 @@ public final class LootItemFactory {
     }
 
     public static ItemStack applySuffixCatalyst(ItemStack stack, RandomSource random, HolderLookup.Provider registries) {
-        if (!stack.is(ModItems.SHARD_BLADE.get())) {
+        if (!LootDataHelper.canReceiveAffixes(stack)) {
             return ItemStack.EMPTY;
         }
 
@@ -132,51 +131,54 @@ public final class LootItemFactory {
             return ItemStack.EMPTY;
         }
 
+        ItemLootCategory category = LootDataHelper.getLootCategory(stack);
         int itemLevel = LootDataHelper.getItemLevel(stack);
         List<RolledAffix> prefixes = List.of();
         List<RolledAffix> suffixes = List.of();
 
         if (random.nextInt(10) == 0) {
-            prefixes = List.of(AffixPool.rollPrefix(random, itemLevel));
-            suffixes = List.of(AffixPool.rollSuffix(random, itemLevel));
+            prefixes = List.of(AffixPool.rollPrefix(random, category, itemLevel));
+            suffixes = List.of(AffixPool.rollSuffix(random, category, itemLevel));
         } else if (random.nextBoolean()) {
-            prefixes = List.of(AffixPool.rollPrefix(random, itemLevel));
+            prefixes = List.of(AffixPool.rollPrefix(random, category, itemLevel));
         } else {
-            suffixes = List.of(AffixPool.rollSuffix(random, itemLevel));
+            suffixes = List.of(AffixPool.rollSuffix(random, category, itemLevel));
         }
 
         return buildResult(stack, random, ItemRarity.MAGIC, prefixes, suffixes);
     }
 
     private static ItemStack applyPrefixCatalystToAffixed(ItemStack stack, RandomSource random, ItemRarity rarity) {
+        ItemLootCategory category = LootDataHelper.getLootCategory(stack);
         List<RolledAffix> prefixes = new ArrayList<>(LootDataHelper.getPrefixes(stack));
         List<RolledAffix> suffixes = LootDataHelper.getSuffixes(stack);
         int maxPrefixes = AffixLimits.maxPrefixes(rarity);
         int itemLevel = LootDataHelper.getItemLevel(stack);
 
         if (prefixes.isEmpty()) {
-            prefixes = List.of(AffixPool.rollPrefix(random, itemLevel));
+            prefixes = List.of(AffixPool.rollPrefix(random, category, itemLevel));
         } else if (prefixes.size() < maxPrefixes) {
-            prefixes = appendAffix(prefixes, AffixPool.rollPrefixExcludingIds(random, itemLevel, affixIds(prefixes)));
+            prefixes = appendAffix(prefixes, AffixPool.rollPrefixExcludingIds(random, category, itemLevel, affixIds(prefixes)));
         } else {
-            prefixes = rerollAffix(prefixes, random.nextInt(prefixes.size()), random, itemLevel, true);
+            prefixes = rerollAffix(prefixes, random.nextInt(prefixes.size()), random, category, itemLevel, true);
         }
 
         return buildResult(stack, random, rarity, prefixes, suffixes);
     }
 
     private static ItemStack applySuffixCatalystToAffixed(ItemStack stack, RandomSource random, ItemRarity rarity) {
+        ItemLootCategory category = LootDataHelper.getLootCategory(stack);
         List<RolledAffix> prefixes = LootDataHelper.getPrefixes(stack);
         List<RolledAffix> suffixes = new ArrayList<>(LootDataHelper.getSuffixes(stack));
         int maxSuffixes = AffixLimits.maxSuffixes(rarity);
         int itemLevel = LootDataHelper.getItemLevel(stack);
 
         if (suffixes.isEmpty()) {
-            suffixes = List.of(AffixPool.rollSuffix(random, itemLevel));
+            suffixes = List.of(AffixPool.rollSuffix(random, category, itemLevel));
         } else if (suffixes.size() < maxSuffixes) {
-            suffixes = appendAffix(suffixes, AffixPool.rollSuffixExcludingIds(random, itemLevel, affixIds(suffixes)));
+            suffixes = appendAffix(suffixes, AffixPool.rollSuffixExcludingIds(random, category, itemLevel, affixIds(suffixes)));
         } else {
-            suffixes = rerollAffix(suffixes, random.nextInt(suffixes.size()), random, itemLevel, false);
+            suffixes = rerollAffix(suffixes, random.nextInt(suffixes.size()), random, category, itemLevel, false);
         }
 
         return buildResult(stack, random, rarity, prefixes, suffixes);
@@ -189,8 +191,9 @@ public final class LootItemFactory {
             List<RolledAffix> prefixes,
             List<RolledAffix> suffixes
     ) {
+        ItemLootCategory category = LootDataHelper.getLootCategory(stack);
         int itemLevel = LootDataHelper.getItemLevel(stack);
-        List<RolledAffix> updatedPrefixes = appendAffix(prefixes, AffixPool.rollPrefix(random, itemLevel));
+        List<RolledAffix> updatedPrefixes = appendAffix(prefixes, AffixPool.rollPrefix(random, category, itemLevel));
         return buildResult(stack, random, rarity, updatedPrefixes, suffixes);
     }
 
@@ -201,8 +204,9 @@ public final class LootItemFactory {
             List<RolledAffix> prefixes,
             List<RolledAffix> suffixes
     ) {
+        ItemLootCategory category = LootDataHelper.getLootCategory(stack);
         int itemLevel = LootDataHelper.getItemLevel(stack);
-        List<RolledAffix> updatedSuffixes = appendAffix(suffixes, AffixPool.rollSuffix(random, itemLevel));
+        List<RolledAffix> updatedSuffixes = appendAffix(suffixes, AffixPool.rollSuffix(random, category, itemLevel));
         return buildResult(stack, random, rarity, prefixes, updatedSuffixes);
     }
 
@@ -216,6 +220,7 @@ public final class LootItemFactory {
             List<RolledAffix> affixes,
             int index,
             RandomSource random,
+            ItemLootCategory category,
             int itemLevel,
             boolean prefix
     ) {
@@ -223,8 +228,8 @@ public final class LootItemFactory {
         Set<String> excludedIds = new HashSet<>(affixIds(updated));
         excludedIds.remove(updated.get(index).id());
         RolledAffix rerolled = prefix
-                ? AffixPool.rollPrefixExcludingIds(random, itemLevel, excludedIds)
-                : AffixPool.rollSuffixExcludingIds(random, itemLevel, excludedIds);
+                ? AffixPool.rollPrefixExcludingIds(random, category, itemLevel, excludedIds)
+                : AffixPool.rollSuffixExcludingIds(random, category, itemLevel, excludedIds);
         updated.set(index, rerolled);
         return updated;
     }
@@ -238,19 +243,12 @@ public final class LootItemFactory {
     }
 
     private static ItemStack buildResult(
-
             ItemStack source,
-
             RandomSource random,
-
             ItemRarity rarity,
-
             List<RolledAffix> prefixes,
-
             List<RolledAffix> suffixes
-
     ) {
-
         ItemStack result = new ItemStack(source.getItem());
 
         long instanceId = LootDataHelper.getInstanceId(source).orElseGet(random::nextLong);
@@ -267,24 +265,14 @@ public final class LootItemFactory {
         );
 
         return result;
-
     }
-
-
 
     private static List<RolledAffix> trim(List<RolledAffix> affixes, int maxCount) {
-
         if (affixes.size() <= maxCount) {
-
             return List.copyOf(affixes);
-
         }
-
         return List.copyOf(affixes.subList(0, maxCount));
-
     }
-
-
 
     private static void finalizeBlade(
             ItemStack stack,
@@ -304,7 +292,11 @@ public final class LootItemFactory {
         }
 
         LootDataHelper.write(stack, resolvedRarity, itemLevel, prefixes, suffixes, instanceId, rareName);
-        stack.set(DataComponents.CUSTOM_NAME, buildDisplayName(resolvedRarity, prefixes, suffixes, rareName));
+        if (resolvedRarity == ItemRarity.NORMAL && prefixes.isEmpty() && suffixes.isEmpty()) {
+            stack.remove(DataComponents.CUSTOM_NAME);
+        } else {
+            stack.set(DataComponents.CUSTOM_NAME, buildDisplayName(resolvedRarity, prefixes, suffixes, rareName));
+        }
     }
 
     private static Component buildDisplayName(
@@ -325,27 +317,33 @@ public final class LootItemFactory {
         Component base = Component.translatable("item.riftbound.shard_blade.magic");
 
         if (hasPrefix && hasSuffix) {
+            Component prefixPart = Component.translatable(prefixAffixNameKey(prefixes.getFirst()));
+            Component suffixPart = Component.translatable(suffixAffixNameKey(suffixes.getFirst()));
             return Component.translatable(
                     "magic_name.riftbound.shard_blade.both",
-                    Component.translatable(prefixAffixNameKey(prefixes.getFirst())),
+                    prefixPart,
                     base,
-                    Component.translatable(suffixAffixNameKey(suffixes.getFirst()))
+                    suffixPart
             ).withStyle(rarity.style());
         }
 
         if (hasPrefix) {
+            Component prefixPart = Component.translatable(prefixAffixNameKey(prefixes.getFirst()));
             return Component.translatable(
                     "magic_name.riftbound.shard_blade.prefix_only",
-                    Component.translatable(prefixAffixNameKey(prefixes.getFirst())),
-                    base
+                    prefixPart,
+                    base,
+                    prefixPart
             ).withStyle(rarity.style());
         }
 
         if (hasSuffix) {
+            Component suffixPart = Component.translatable(suffixAffixNameKey(suffixes.getFirst()));
             return Component.translatable(
                     "magic_name.riftbound.shard_blade.suffix_only",
+                    suffixPart,
                     base,
-                    Component.translatable(suffixAffixNameKey(suffixes.getFirst()))
+                    suffixPart
             ).withStyle(rarity.style());
         }
 
@@ -359,7 +357,4 @@ public final class LootItemFactory {
     private static String suffixAffixNameKey(RolledAffix affix) {
         return "affix.riftbound." + affix.id() + ".name_arg3";
     }
-
 }
-
-
