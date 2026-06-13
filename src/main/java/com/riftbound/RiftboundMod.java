@@ -6,6 +6,7 @@ import com.riftbound.event.BladeAttributeEvents;
 import com.riftbound.event.BladeCombatEvents;
 import com.riftbound.event.ItemInstanceEvents;
 import com.riftbound.event.LootEvents;
+import com.riftbound.registry.ModBlockEntities;
 import com.riftbound.registry.ModBlocks;
 import com.riftbound.registry.ModCreativeTabs;
 import com.riftbound.registry.ModItems;
@@ -23,6 +24,7 @@ public class RiftboundMod {
 
     public RiftboundMod(IEventBus modEventBus) {
         ModBlocks.register(modEventBus);
+        ModBlockEntities.register(modEventBus);
         ModItems.register(modEventBus);
         ModCreativeTabs.register(modEventBus);
         ModMenus.register(modEventBus);

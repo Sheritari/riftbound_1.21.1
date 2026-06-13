@@ -1,7 +1,9 @@
 {
   "itemGroup.riftbound": "Riftbound",
   "block.riftbound.shard_ore": "Рудный осколок",
+  "block.riftbound.cage_of_trade": "Клетка обмена",
   "item.riftbound.shard_ore": "Рудный осколок",
+  "item.riftbound.cage_of_trade": "Клетка обмена",
   "item.riftbound.shard_dust": "Пыль осколка",
   "tooltip.riftbound.shard_dust": "Добавляет или переролливает префикс клинка в крафте осколков",
   "item.riftbound.shard_stone": "Камень осколка",

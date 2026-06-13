@@ -37,6 +37,11 @@ public final class ModItems {
             () -> new OrbOfResonantItem(new Item.Properties().stacksTo(OrbOfResonantItem.MAX_STACK_SIZE))
     );
 
+    public static final DeferredItem<RiftboundBlockItem> CAGE_OF_TRADE_ITEM = ITEMS.register(
+            "cage_of_trade",
+            () -> new RiftboundBlockItem(ModBlocks.CAGE_OF_TRADE.get(), new Item.Properties())
+    );
+
     public static final DeferredItem<RiftboundBlockItem> SHARD_ORE_ITEM = ITEMS.register(
             "shard_ore",
             () -> new RiftboundBlockItem(ModBlocks.SHARD_ORE.get(), new Item.Properties())

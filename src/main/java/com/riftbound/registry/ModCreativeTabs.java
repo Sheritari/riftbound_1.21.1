@@ -25,6 +25,7 @@ public final class ModCreativeTabs {
                         output.accept(ModItems.SHARD_STONE.get());
                         output.accept(ModItems.RESONANT_SHARD.get());
                         output.accept(ModItems.ORB_OF_RESONANT.get());
+                        output.accept(ModBlocks.CAGE_OF_TRADE.get());
                         output.accept(ModBlocks.SHARD_ORE.get());
                         output.accept(LootItemFactory.createNormalBlade());
                     })

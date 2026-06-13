@@ -20,6 +20,7 @@ public final class RiftboundClientMod {
 
     @SubscribeEvent
     public static void registerScreens(RegisterMenuScreensEvent event) {
+        event.register(ModMenus.CAGE_OF_TRADE.get(), CageOfTradeScreen::new);
         event.register(ModMenus.TRANSMUTATION.get(), TransmutationScreen::new);
     }
 

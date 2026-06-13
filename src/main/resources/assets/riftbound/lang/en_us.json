@@ -1,7 +1,9 @@
 {
   "itemGroup.riftbound": "Riftbound",
   "block.riftbound.shard_ore": "Shard Ore",
+  "block.riftbound.cage_of_trade": "Cage of Trade",
   "item.riftbound.shard_ore": "Shard Ore",
+  "item.riftbound.cage_of_trade": "Cage of Trade",
   "item.riftbound.shard_dust": "Shard Dust",
   "tooltip.riftbound.shard_dust": "Adds or rerolls a prefix on a blade in Shard Crafting",
   "item.riftbound.shard_stone": "Shard Stone",
