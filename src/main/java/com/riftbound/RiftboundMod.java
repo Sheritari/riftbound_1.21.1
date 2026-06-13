@@ -11,6 +11,7 @@ import com.riftbound.registry.ModBlocks;
 import com.riftbound.registry.ModCreativeTabs;
 import com.riftbound.registry.ModItems;
 import com.riftbound.network.ModNetworking;
+import com.riftbound.registry.ModLootModifiers;
 import com.riftbound.registry.ModMenus;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
@@ -26,6 +27,7 @@ public class RiftboundMod {
         ModBlocks.register(modEventBus);
         ModBlockEntities.register(modEventBus);
         ModItems.register(modEventBus);
+        ModLootModifiers.register(modEventBus);
         ModCreativeTabs.register(modEventBus);
         ModMenus.register(modEventBus);
         modEventBus.addListener(ModNetworking::registerPayloadHandlers);

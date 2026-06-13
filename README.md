@@ -26,7 +26,7 @@ A fantasy mod for Minecraft **1.21.1** (NeoForge).
 
 - **Suffixes** — of Skill, of Needling, of the Brute, of the Mongoose, of Steadiness, of Success
 
-- **Mob loot** — **Vaelen's Blade** (ilvl 1) drops only from vanilla Minecraft mobs
+- **Mob loot** — vanilla monsters and chests can drop **Orb of Resonant** or **Vaelen's Blade** (normal/magic/rare)
 
 - **Craft tab** in the player inventory (survival and creative): Orb of Resonant + normal equipment
 

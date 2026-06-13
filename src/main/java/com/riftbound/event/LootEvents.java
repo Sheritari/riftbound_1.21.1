@@ -1,7 +1,6 @@
 package com.riftbound.event;
 
-import com.riftbound.loot.ItemRarity;
-import com.riftbound.loot.LootItemFactory;
+import com.riftbound.loot.WorldLootRoller;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
@@ -27,26 +26,13 @@ public final class LootEvents {
         if (!(entity.level() instanceof ServerLevel serverLevel)) {
             return;
         }
-
         if (!isVanillaMob(entity)) {
             return;
         }
 
         RandomSource random = serverLevel.getRandom();
-        float bladeRoll = random.nextFloat();
-        if (bladeRoll < 0.08F) {
-            ItemRarity rarity;
-            if (bladeRoll < 0.01F) {
-                rarity = ItemRarity.RARE;
-            } else if (bladeRoll < 0.03F) {
-                rarity = ItemRarity.MAGIC;
-            } else {
-                rarity = ItemRarity.NORMAL;
-            }
-
-            ItemStack blade = LootItemFactory.createShardBlade(random, rarity, serverLevel.registryAccess());
-            event.getDrops().add(createDrop(entity, blade));
-        }
+        WorldLootRoller.rollModDrop(random, serverLevel.registryAccess())
+                .ifPresent(stack -> event.getDrops().add(createDrop(entity, stack)));
     }
 
     private static boolean isVanillaMob(LivingEntity entity) {
