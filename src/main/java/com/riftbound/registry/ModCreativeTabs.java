@@ -23,6 +23,8 @@ public final class ModCreativeTabs {
                     .displayItems((parameters, output) -> {
                         output.accept(ModItems.SHARD_DUST.get());
                         output.accept(ModItems.SHARD_STONE.get());
+                        output.accept(ModItems.RESONANT_SHARD.get());
+                        output.accept(ModItems.ORB_OF_RESONANT.get());
                         output.accept(ModBlocks.SHARD_ORE.get());
                         output.accept(LootItemFactory.createNormalBlade());
                     })

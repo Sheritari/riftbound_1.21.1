@@ -3,6 +3,8 @@ package com.riftbound.registry;
 import com.riftbound.RiftboundMod;
 import com.riftbound.item.BladeCombatStats;
 import com.riftbound.item.RiftboundBlockItem;
+import com.riftbound.item.OrbOfResonantItem;
+import com.riftbound.item.ResonantShardItem;
 import com.riftbound.item.ShardBladeItem;
 import com.riftbound.item.ShardDustItem;
 import com.riftbound.item.ShardStoneItem;
@@ -23,6 +25,16 @@ public final class ModItems {
     public static final DeferredItem<Item> SHARD_STONE = ITEMS.register(
             "shard_stone",
             () -> new ShardStoneItem(new Item.Properties())
+    );
+
+    public static final DeferredItem<ResonantShardItem> RESONANT_SHARD = ITEMS.register(
+            "resonant_shard",
+            () -> new ResonantShardItem(new Item.Properties().stacksTo(ResonantShardItem.MAX_STACK_SIZE))
+    );
+
+    public static final DeferredItem<OrbOfResonantItem> ORB_OF_RESONANT = ITEMS.register(
+            "orb_of_resonant",
+            () -> new OrbOfResonantItem(new Item.Properties().stacksTo(OrbOfResonantItem.MAX_STACK_SIZE))
     );
 
     public static final DeferredItem<RiftboundBlockItem> SHARD_ORE_ITEM = ITEMS.register(

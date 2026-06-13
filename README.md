@@ -1,4 +1,4 @@
-# Riftbound 0.1.5b
+# Riftbound 0.1.6
 
 
 
@@ -6,7 +6,7 @@ A fantasy mod for Minecraft **1.21.1** (NeoForge).
 
 
 
-## Features (0.1.5b)
+## Features (0.1.6)
 
 
 
@@ -14,21 +14,9 @@ A fantasy mod for Minecraft **1.21.1** (NeoForge).
 
 - **Shard Stone** — adds or rerolls suffixes on blades in Shard Crafting
 
-- **Shard Ore** — mineable ore (creative / `/setblock` for now; worldgen planned)
+- **Resonant Shard** — stacks to 20; a full stack auto-converts into an Orb of Resonant in inventory
 
-- **Vaelen's Blade** — POE-style loot sword with implicit, prefixes, and suffixes
-
-- **Rarity** — normal (white), magic (blue, 1 prefix or 1 suffix), rare (yellow, 1 prefix + 1 suffix)
-
-- **Prefixes** — Squire's, Heated, Heavy
-
-- **Suffixes** — of Skill, of Needling, of the Brute, of the Mongoose, of Steadiness, of Success
-
-- **Mob loot** — hostile mobs drop dust; **Vaelen's Blade** (ilvl 1) drops only from vanilla Minecraft mobs
-
-- **Craft tab** in the player inventory (survival and creative): horizontal input slots and a deterministic result preview
-
-- **Transmutation** — shard dust for prefixes, shard stone for suffixes; combining both mods upgrades magic blades to rare
+- **Orb of Resonant** — placeholder currency (stacks to 40)
 
 - **Localization** — English and Russian in-game strings
 
