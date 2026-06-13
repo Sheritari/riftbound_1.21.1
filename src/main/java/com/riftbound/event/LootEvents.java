@@ -36,6 +36,8 @@ public final class LootEvents {
             event.getDrops().add(createDrop(entity, new ItemStack(ModItems.SHARD_DUST.get(), count)));
         }
 
+        // Resonant Shard is obtained only from the Cage of Trade, not mob drops.
+
         if (!isVanillaMob(entity)) {
             return;
         }

@@ -15,10 +15,11 @@ import net.minecraft.world.item.component.CustomData;
 public final class TransmutationLogic {
     private enum Catalyst {
         DUST,
-        STONE
+        STONE,
+        ORB
     }
 
-    private record Match(ItemStack blade, Catalyst catalyst) {
+    private record Match(ItemStack equipment, Catalyst catalyst) {
     }
 
     private TransmutationLogic() {
@@ -45,8 +46,9 @@ public final class TransmutationLogic {
 
         RandomSource random = RandomSource.create(seed);
         return switch (match.catalyst()) {
-            case DUST -> LootItemFactory.applyPrefixCatalyst(match.blade(), random, registries);
-            case STONE -> LootItemFactory.applySuffixCatalyst(match.blade(), random, registries);
+            case DUST -> LootItemFactory.applyPrefixCatalyst(match.equipment(), random, registries);
+            case STONE -> LootItemFactory.applySuffixCatalyst(match.equipment(), random, registries);
+            case ORB -> LootItemFactory.applyResonantOrbCatalyst(match.equipment(), random, registries);
         };
     }
 
@@ -60,9 +62,9 @@ public final class TransmutationLogic {
             second.shrink(1);
         }
 
-        if (isShardBlade(first)) {
+        if (isCraftEquipment(first)) {
             first.shrink(1);
-        } else if (isShardBlade(second)) {
+        } else if (isCraftEquipment(second)) {
             second.shrink(1);
         }
     }
@@ -71,17 +73,23 @@ public final class TransmutationLogic {
         if (first.isEmpty() || second.isEmpty()) {
             return null;
         }
-        if (isDust(first) && isShardBlade(second)) {
+        if (isDust(first) && isAffixCraftEquipment(second)) {
             return new Match(second, Catalyst.DUST);
         }
-        if (isDust(second) && isShardBlade(first)) {
+        if (isDust(second) && isAffixCraftEquipment(first)) {
             return new Match(first, Catalyst.DUST);
         }
-        if (isStone(first) && isShardBlade(second)) {
+        if (isStone(first) && isAffixCraftEquipment(second)) {
             return new Match(second, Catalyst.STONE);
         }
-        if (isStone(second) && isShardBlade(first)) {
+        if (isStone(second) && isAffixCraftEquipment(first)) {
             return new Match(first, Catalyst.STONE);
+        }
+        if (isOrb(first) && isResonantCraftEquipment(second)) {
+            return new Match(second, Catalyst.ORB);
+        }
+        if (isOrb(second) && isResonantCraftEquipment(first)) {
+            return new Match(first, Catalyst.ORB);
         }
         return null;
     }
@@ -117,7 +125,7 @@ public final class TransmutationLogic {
     }
 
     private static boolean isCatalyst(ItemStack stack) {
-        return isDust(stack) || isStone(stack);
+        return isDust(stack) || isStone(stack) || isOrb(stack);
     }
 
     private static boolean isDust(ItemStack stack) {
@@ -128,7 +136,15 @@ public final class TransmutationLogic {
         return stack.is(ModItems.SHARD_STONE.get());
     }
 
-    private static boolean isShardBlade(ItemStack stack) {
+    private static boolean isOrb(ItemStack stack) {
+        return stack.is(ModItems.ORB_OF_RESONANT.get());
+    }
+
+    private static boolean isCraftEquipment(ItemStack stack) {
+        return isAffixCraftEquipment(stack) || isResonantCraftEquipment(stack);
+    }
+
+    private static boolean isAffixCraftEquipment(ItemStack stack) {
         if (!stack.is(ModItems.SHARD_BLADE.get())) {
             return false;
         }
@@ -136,5 +152,10 @@ public final class TransmutationLogic {
         return rarity == ItemRarity.NORMAL
                 || rarity == ItemRarity.MAGIC
                 || rarity == ItemRarity.RARE;
+    }
+
+    private static boolean isResonantCraftEquipment(ItemStack stack) {
+        return LootDataHelper.isModEquipment(stack)
+                && LootDataHelper.getRarity(stack) == ItemRarity.NORMAL;
     }
 }

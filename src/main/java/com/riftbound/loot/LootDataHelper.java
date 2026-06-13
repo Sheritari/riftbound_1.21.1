@@ -135,6 +135,10 @@ public final class LootDataHelper {
         return isModItem(stack) && stack.getMaxStackSize() == 1;
     }
 
+    public static boolean isModEquipment(ItemStack stack) {
+        return usesInstanceId(stack);
+    }
+
     public static boolean ensureLootDefaults(ItemStack stack) {
         if (!stack.is(ModItems.SHARD_BLADE.get())) {
             return false;
@@ -195,7 +199,7 @@ public final class LootDataHelper {
     }
 
     public static boolean deduplicateInstanceId(Container inventory, ItemStack stack, int slotId) {
-        if (!stack.is(ModItems.SHARD_BLADE.get())) {
+        if (!usesInstanceId(stack)) {
             return false;
         }
 
@@ -211,7 +215,7 @@ public final class LootDataHelper {
             }
 
             ItemStack other = inventory.getItem(i);
-            if (!other.is(ModItems.SHARD_BLADE.get())) {
+            if (!other.is(stack.getItem())) {
                 continue;
             }
 

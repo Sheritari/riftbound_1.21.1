@@ -153,6 +153,31 @@ public final class LootItemFactory {
 
     }
 
+    public static ItemStack applyResonantOrbCatalyst(ItemStack stack, RandomSource random, HolderLookup.Provider registries) {
+        if (!LootDataHelper.isModEquipment(stack)) {
+            return ItemStack.EMPTY;
+        }
+
+        if (LootDataHelper.getRarity(stack) != ItemRarity.NORMAL) {
+            return ItemStack.EMPTY;
+        }
+
+        int itemLevel = LootDataHelper.getItemLevel(stack);
+        List<RolledAffix> prefixes = List.of();
+        List<RolledAffix> suffixes = List.of();
+
+        if (random.nextInt(10) == 0) {
+            prefixes = List.of(AffixPool.rollPrefix(random, itemLevel));
+            suffixes = List.of(AffixPool.rollSuffix(random, itemLevel));
+        } else if (random.nextBoolean()) {
+            prefixes = List.of(AffixPool.rollPrefix(random, itemLevel));
+        } else {
+            suffixes = List.of(AffixPool.rollSuffix(random, itemLevel));
+        }
+
+        return buildResult(stack, random, ItemRarity.MAGIC, prefixes, suffixes);
+    }
+
 
 
     private static ItemStack applyPrefixCatalystToAffixed(ItemStack stack, RandomSource random, ItemRarity rarity) {
@@ -347,7 +372,7 @@ public final class LootItemFactory {
 
     ) {
 
-        ItemStack result = new ItemStack(ModItems.SHARD_BLADE.get());
+        ItemStack result = new ItemStack(source.getItem());
 
         long instanceId = LootDataHelper.getInstanceId(source).orElseGet(random::nextLong);
 
@@ -416,17 +441,44 @@ public final class LootItemFactory {
             return name.withStyle(ItemRarity.RARE.style());
         }
 
-        StringBuilder name = new StringBuilder();
-        for (RolledAffix affix : prefixes) {
-            name.append(Component.translatable("affix.riftbound." + affix.id()).getString());
-            name.append(' ');
+        boolean hasPrefix = !prefixes.isEmpty();
+        boolean hasSuffix = !suffixes.isEmpty();
+        Component base = Component.translatable("item.riftbound.shard_blade.magic");
+
+        if (hasPrefix && hasSuffix) {
+            return Component.translatable(
+                    "magic_name.riftbound.shard_blade.both",
+                    Component.translatable(prefixAffixNameKey(prefixes.getFirst())),
+                    base,
+                    Component.translatable(suffixAffixNameKey(suffixes.getFirst()))
+            ).withStyle(rarity.style());
         }
-        name.append(Component.translatable("item.riftbound.shard_blade").getString());
-        for (RolledAffix affix : suffixes) {
-            name.append(' ');
-            name.append(Component.translatable("affix.riftbound." + affix.id()).getString());
+
+        if (hasPrefix) {
+            return Component.translatable(
+                    "magic_name.riftbound.shard_blade.prefix_only",
+                    Component.translatable(prefixAffixNameKey(prefixes.getFirst())),
+                    base
+            ).withStyle(rarity.style());
         }
-        return Component.literal(name.toString()).withStyle(rarity.style());
+
+        if (hasSuffix) {
+            return Component.translatable(
+                    "magic_name.riftbound.shard_blade.suffix_only",
+                    base,
+                    Component.translatable(suffixAffixNameKey(suffixes.getFirst()))
+            ).withStyle(rarity.style());
+        }
+
+        return Component.translatable("item.riftbound.shard_blade").withStyle(rarity.style());
+    }
+
+    private static String prefixAffixNameKey(RolledAffix affix) {
+        return "affix.riftbound." + affix.id() + ".name_arg1";
+    }
+
+    private static String suffixAffixNameKey(RolledAffix affix) {
+        return "affix.riftbound." + affix.id() + ".name_arg3";
     }
 
 }

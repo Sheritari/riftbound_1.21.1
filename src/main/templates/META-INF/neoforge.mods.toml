@@ -46,7 +46,7 @@ displayName="${mod_name}" #mandatory
 
 # The description text for the mod (multi line!) (#mandatory)
 description='''
-Fantasy loot mod with affixes for Minecraft 1.21.1. Version 0.1.7c: POE-style magic/rare affix limits and random rare item names.
+Fantasy loot mod with affixes for Minecraft 1.21.1. Version 0.1.8: Orb of Resonant upgrades normal mod equipment to magic in the craft tab.
 '''
 
 # The [[mixins]] block allows you to declare your mixin config to FML so that it gets loaded.
