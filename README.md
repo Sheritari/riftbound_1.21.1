@@ -1,4 +1,4 @@
-# Riftbound 0.1.7a
+# Riftbound 0.1.8a
 
 
 
@@ -6,17 +6,13 @@ A fantasy mod for Minecraft **1.21.1** (NeoForge).
 
 
 
-## Features (0.1.7a)
+## Features (0.1.8a)
 
 
-
-- **Shard Dust** — adds or rerolls prefixes on blades in Shard Crafting
-
-- **Shard Stone** — adds or rerolls suffixes on blades in Shard Crafting
 
 - **Resonant Shard** — stacks to 20; a full stack auto-converts into an Orb of Resonant in inventory
 
-- **Orb of Resonant** — placeholder currency (stacks to 40)
+- **Orb of Resonant** — upgrades normal mod equipment to magic in the inventory Craft tab
 
 - **Cage of Trade** — chest-like GUI: deposit magic (blue) items on the left, take Resonant Shards on the right (1:1); taking shards consumes all inputs; inputs drop on close
 
@@ -24,17 +20,15 @@ A fantasy mod for Minecraft **1.21.1** (NeoForge).
 
 - **Vaelen's Blade** — POE-style loot sword with implicit, prefixes, and suffixes
 
-- **Rarity** — normal (white), magic (blue, 1 prefix or 1 suffix), rare (yellow, 1 prefix + 1 suffix)
+- **Rarity** — normal (white), magic (blue), rare (yellow)
 
 - **Prefixes** — Squire's, Heated, Heavy
 
 - **Suffixes** — of Skill, of Needling, of the Brute, of the Mongoose, of Steadiness, of Success
 
-- **Mob loot** — hostile mobs drop dust; **Vaelen's Blade** (ilvl 1) drops only from vanilla Minecraft mobs
+- **Mob loot** — **Vaelen's Blade** (ilvl 1) drops only from vanilla Minecraft mobs
 
-- **Craft tab** in the player inventory (survival and creative): horizontal input slots and a deterministic result preview
-
-- **Transmutation** — shard dust for prefixes, shard stone for suffixes; combining both mods upgrades magic blades to rare
+- **Craft tab** in the player inventory (survival and creative): Orb of Resonant + normal equipment
 
 - **Localization** — English and Russian in-game strings
 

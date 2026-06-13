@@ -21,8 +21,6 @@ public final class ModCreativeTabs {
                     .withTabsBefore(CreativeModeTabs.COMBAT)
                     .icon(() -> LootItemFactory.createNormalBlade())
                     .displayItems((parameters, output) -> {
-                        output.accept(ModItems.SHARD_DUST.get());
-                        output.accept(ModItems.SHARD_STONE.get());
                         output.accept(ModItems.RESONANT_SHARD.get());
                         output.accept(ModItems.ORB_OF_RESONANT.get());
                         output.accept(ModBlocks.CAGE_OF_TRADE.get());

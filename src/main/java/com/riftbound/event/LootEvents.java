@@ -2,7 +2,6 @@ package com.riftbound.event;
 
 import com.riftbound.loot.ItemRarity;
 import com.riftbound.loot.LootItemFactory;
-import com.riftbound.registry.ModItems;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
@@ -29,19 +28,11 @@ public final class LootEvents {
             return;
         }
 
-        RandomSource random = serverLevel.getRandom();
-
-        if (random.nextFloat() < 0.35F) {
-            int count = 1 + random.nextInt(2);
-            event.getDrops().add(createDrop(entity, new ItemStack(ModItems.SHARD_DUST.get(), count)));
-        }
-
-        // Resonant Shard is obtained only from the Cage of Trade, not mob drops.
-
         if (!isVanillaMob(entity)) {
             return;
         }
 
+        RandomSource random = serverLevel.getRandom();
         float bladeRoll = random.nextFloat();
         if (bladeRoll < 0.08F) {
             ItemRarity rarity;
